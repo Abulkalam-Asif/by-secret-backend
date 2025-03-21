@@ -14,12 +14,7 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 connectToMongoDB();
 
-app.use(
-  cors({
-    origin: FRONTEND_URL,
-    credentials: true,
-  })
-);
+app.use(cors({ origin: "*" }));
 
 // Required middleware for Apollo
 app.use(express.json());
