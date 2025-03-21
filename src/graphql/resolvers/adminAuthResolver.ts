@@ -36,8 +36,8 @@ const userResolver = {
         const token = await signJwt(admin.id);
 
         // Return token
-        res.setHeader("Access-Control-Allow-Credentials", "true");
-        res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+        // res.setHeader("Access-Control-Allow-Credentials", "true");
+        // res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
         res.cookie("authToken", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
