@@ -5,6 +5,7 @@ import cors from "cors";
 import resolvers from "./graphql/resolvers";
 import typeDefs from "./graphql/schemas";
 import { Request, Response } from "express";
+import cookieParser from "cookie-parser";
 import connectToMongoDB from "./connectToMongoDB";
 
 const app: Application = express();
@@ -12,7 +13,6 @@ const PORT = process.env.PORT || 5000;
 
 connectToMongoDB();
 
-// Enable CORS for Electron
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -23,6 +23,8 @@ app.use(
 // Required middleware for Apollo
 app.use(express.json());
 
+app.use(cookieParser());
+
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World");
 });
@@ -32,6 +34,7 @@ async function startServer() {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
+    context: ({ req, res }) => ({ req, res }),
   });
 
   await server.start(); // Ensure Apollo Server is started before applying middleware

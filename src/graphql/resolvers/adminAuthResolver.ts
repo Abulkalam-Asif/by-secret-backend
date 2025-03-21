@@ -1,14 +1,17 @@
 import { signJwt } from "../../utils/signJwt";
 import { verifyJwt } from "../../utils/verifyJwt";
 import { Admin } from "../../models/Admin";
+import { Request, Response } from "express";
 
 const userResolver = {
   Query: {},
   Mutation: {
     loginAdmin: async (
       _: any,
-      { username, password }: { username: string; password: string }
+      { username, password }: { username: string; password: string },
+      context: any
     ) => {
+      const { res } = context;
       try {
         // Check if admin exists
         const admin = await Admin.findOne({ username });
@@ -32,6 +35,17 @@ const userResolver = {
 
         // Sign JWT
         const token = await signJwt(admin.id);
+
+        // Return token
+        res.setHeader("Access-Control-Allow-Credentials", "true");
+        res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+        res.cookie("authToken", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 3600000,
+        });
+
         return {
           success: true,
           message: "Successfully logged in",
