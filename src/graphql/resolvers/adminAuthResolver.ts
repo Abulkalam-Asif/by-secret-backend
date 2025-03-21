@@ -1,7 +1,6 @@
 import { signJwt } from "../../utils/signJwt";
 import { verifyJwt } from "../../utils/verifyJwt";
 import { Admin } from "../../models/Admin";
-import { Request, Response } from "express";
 
 const userResolver = {
   Query: {},
