@@ -4,6 +4,7 @@ export const wikiTypeDefs = gql`
   type Wiki {
     id: ID!
     content: String!
+    updatedAt: String!
   }
 
   type Query {
