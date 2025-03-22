@@ -1,6 +1,7 @@
-import { adminTypeDefs } from "./adminAuthSchema";
+import { adminAuthTypeDefs } from "./adminAuthSchema";
+import { userTypeDefs } from "./userSchema";
 import { wikiTypeDefs } from "./wikiSchema";
 
-const typeDefs = [adminTypeDefs, wikiTypeDefs];
+const typeDefs = [adminAuthTypeDefs, wikiTypeDefs, userTypeDefs];
 
 export default typeDefs;

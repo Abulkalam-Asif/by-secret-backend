@@ -1,6 +1,6 @@
-import { gql } from "graphql-tag";
+import { gql } from "apollo-server-express";
 
-export const adminTypeDefs = gql`
+export const adminAuthTypeDefs = gql`
   type Admin {
     id: ID!
     username: String!

@@ -2,7 +2,7 @@ import { signJwt } from "../../utils/signJwt";
 import { verifyJwt } from "../../utils/verifyJwt";
 import { Admin } from "../../models/Admin";
 
-const userResolver = {
+export const adminAuthResolver = {
   Query: {},
   Mutation: {
     loginAdmin: async (
@@ -69,8 +69,6 @@ const userResolver = {
     },
   },
 };
-
-export default userResolver;
 
 // tempCreateAdmin: async (
 //   _: any,

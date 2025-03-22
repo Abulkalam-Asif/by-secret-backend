@@ -1,14 +1,17 @@
-import userResolver from "./adminAuthResolver";
+import { adminAuthResolver } from "./adminAuthResolver";
+import { userResolver } from "./userResolver";
 import { wikiResolver } from "./wikiResolver";
 
 const resolvers = {
   Query: {
-    ...userResolver.Query,
+    ...adminAuthResolver.Query,
     ...wikiResolver.Query,
+    ...userResolver.Query,
   },
   Mutation: {
-    ...userResolver.Mutation,
+    ...adminAuthResolver.Mutation,
     ...wikiResolver.Mutation,
+    ...userResolver.Mutation,
   },
 };
 
