@@ -1,5 +1,6 @@
 import { adminAuthResolver } from "./adminAuthResolver";
 import { adsSettingResolver } from "./adsSettingResolver";
+import { advertiserResolver } from "./advertiserResolver";
 import { rouletteSettingResolver } from "./rouletteSettingResolver";
 import { userResolver } from "./userResolver";
 import { wikiResolver } from "./wikiResolver";
@@ -11,6 +12,7 @@ const resolvers = {
     ...userResolver.Query,
     ...adsSettingResolver.Query,
     ...rouletteSettingResolver.Query,
+    ...advertiserResolver.Query,
   },
   Mutation: {
     ...adminAuthResolver.Mutation,
@@ -18,6 +20,7 @@ const resolvers = {
     ...userResolver.Mutation,
     ...adsSettingResolver.Mutation,
     ...rouletteSettingResolver.Mutation,
+    ...advertiserResolver.Mutation,
   },
 };
 

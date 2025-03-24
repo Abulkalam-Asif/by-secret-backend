@@ -6,7 +6,7 @@ import resolvers from "./graphql/resolvers";
 import typeDefs from "./graphql/schemas";
 import { Request, Response } from "express";
 import cookieParser from "cookie-parser";
-import connectToMongoDB from "./connectToMongoDB";
+import connectToMongoDB from "./config/connectToMongoDB";
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
