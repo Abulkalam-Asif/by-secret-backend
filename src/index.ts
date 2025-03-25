@@ -17,7 +17,7 @@ connectToMongoDB();
 app.use(cors({ origin: "*" }));
 
 // Required middleware for Apollo
-app.use(express.json());
+app.use(express.json({ limit: "20mb" }));
 
 app.use(cookieParser());
 
@@ -30,11 +30,16 @@ async function startServer() {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: ({ req, res }) => ({ req, res }),
+    // Add this to increase the Apollo Server payload limit
+    context: ({ req }) => ({ req }),
   });
 
-  await server.start(); // Ensure Apollo Server is started before applying middleware
-  server.applyMiddleware({ app: app as any, path: "/graphql" });
+  await server.start();
+  server.applyMiddleware({
+    bodyParserConfig: { limit: "20mb" },
+    app: app as any,
+    path: "/graphql",
+  });
 
   app.listen(PORT, () => {
     console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
