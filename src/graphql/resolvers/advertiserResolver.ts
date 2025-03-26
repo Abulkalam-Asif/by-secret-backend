@@ -40,8 +40,11 @@ export const advertiserResolver = {
           email,
         });
 
+        console.log("Advertiser created. Sending confirmation email");
         // Send confirmation email
         await sendConfirmationEmail(email);
+        console.log("Email sent");
+
 
         return { success: true, message: "Step 1 completed" };
       } catch (error) {
@@ -127,7 +130,7 @@ const sendConfirmationEmail = async (email: string) => {
   const signedToken = await token.sign(new TextEncoder().encode(secret));
 
   const link = `${frontendUrl}/advertiser-register?step=3&token=${signedToken}`;
-
+  console.log("For email: ", signedToken, link);
   await transporter.sendMail({
     from: process.env.NODEMAILER_USER,
     to: email,
