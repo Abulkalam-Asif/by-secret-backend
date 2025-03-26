@@ -30,8 +30,7 @@ async function startServer() {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    // Add this to increase the Apollo Server payload limit
-    context: ({ req }) => ({ req }),
+    context: ({ req, res }) => ({ req, res }),
   });
 
   await server.start();
