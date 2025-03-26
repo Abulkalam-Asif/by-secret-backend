@@ -1,6 +1,7 @@
 import { signJwt } from "../../utils/signJwt";
 import { verifyJwt } from "../../utils/verifyJwt";
 import { Admin } from "../../models/Admin";
+import { Response } from "express";
 
 export const adminAuthResolver = {
   Query: {},
@@ -10,7 +11,7 @@ export const adminAuthResolver = {
       { username, password }: { username: string; password: string },
       context: any
     ) => {
-      const { res } = context;
+      const { res }: { res: Response } = context;
       try {
         // Check if admin exists
         const admin = await Admin.findOne({ username });
@@ -37,7 +38,10 @@ export const adminAuthResolver = {
 
         // Return token
         res.setHeader("Access-Control-Allow-Credentials", "true");
-        res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+        res.setHeader(
+          "Access-Control-Allow-Origin",
+          process.env.FRONTEND_URL as string
+        );
         res.cookie("authToken", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
