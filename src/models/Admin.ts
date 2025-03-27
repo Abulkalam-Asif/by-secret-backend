@@ -9,6 +9,11 @@ export interface IAdmin extends Document {
 
 const AdminSchema: Schema = new Schema(
   {
+    fullName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     username: {
       type: String,
       required: true,
@@ -18,6 +23,10 @@ const AdminSchema: Schema = new Schema(
     password: {
       type: String,
       required: true,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
     },
   },
   {
@@ -30,5 +39,12 @@ AdminSchema.methods.comparePassword = async function (
 ): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.password);
 };
+
+AdminSchema.pre<IAdmin>("save", async function (next) {
+  if (this.isModified("password")) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
+});
 
 export const Admin = mongoose.model<IAdmin>("Admin", AdminSchema);

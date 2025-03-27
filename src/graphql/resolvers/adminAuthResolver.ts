@@ -52,7 +52,6 @@ export const adminAuthResolver = {
         return {
           success: true,
           message: "Successfully logged in",
-          token,
         };
       } catch (error) {
         console.log("Error logging in", error);
@@ -60,6 +59,52 @@ export const adminAuthResolver = {
           success: false,
           message: "Invalid username or password",
           token: null,
+        };
+      }
+    },
+
+    createAdmin: async (
+      _: any,
+      {
+        username,
+        password,
+        fullName,
+        isActive,
+      }: {
+        username: string;
+        password: string;
+        fullName: string;
+        isActive: boolean;
+      }
+    ) => {
+      try {
+        // Checking if admin already exists
+        const existingAdmin = await Admin.findOne({ username });
+        if (existingAdmin) {
+          return {
+            success: false,
+            message: "An admin with this username already exists",
+          };
+        }
+
+        // Creating new admin
+        const admin = new Admin({
+          username,
+          password,
+          fullName,
+          isActive,
+        });
+        await admin.save();
+
+        return {
+          success: true,
+          message: "Admin created successfully",
+        };
+      } catch (error) {
+        console.log("Error creating admin", error);
+        return {
+          success: false,
+          message: "An error occurred while creating admin",
         };
       }
     },
@@ -73,26 +118,3 @@ export const adminAuthResolver = {
     },
   },
 };
-
-// tempCreateAdmin: async (
-//   _: any,
-//   { username, password }: { username: string; password: string }
-// ) => {
-//   try {
-//     // Hash the password
-//     const hashedPassword = await bcrypt.hash(password, 10);
-
-//     // Create the admin
-//     const admin = new Admin({
-//       username,
-//       password: hashedPassword,
-//     });
-
-//     // Save the admin
-//     await admin.save();
-
-//     return admin;
-//   } catch (error) {
-//     throw new Error("Error creating admin");
-//   }
-// },
