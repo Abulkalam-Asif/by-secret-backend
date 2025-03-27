@@ -1,7 +1,7 @@
 import { gql } from "apollo-server-express";
 
-export const rouletteSettingTypeDefs = gql`
-  type RouletteSetting {
+export const adsSettingsTypeDefs = gql`
+  type AdsSettings {
     id: ID!
     costPerView: Float!
     costPerClick: Float!
@@ -15,11 +15,11 @@ export const rouletteSettingTypeDefs = gql`
   }
 
   type Query {
-    getRouletteSetting: RouletteSetting
+    getAdsSettings: AdsSettings
   }
 
   type Mutation {
-    updateRouletteSetting(
+    updateAdsSettings(
       costPerView: Float
       costPerClick: Float
       rewardPerView: Float

@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const AdsSettingSchema: Schema = new Schema({
+const RouletteSettingSchema: Schema = new Schema({
   costPerView: {
     type: Number,
     required: true,
@@ -19,4 +19,7 @@ const AdsSettingSchema: Schema = new Schema({
   },
 });
 
-export const AdsSetting = mongoose.model("AdsSetting", AdsSettingSchema);
+export const RouletteSettings = mongoose.model(
+  "RouletteSettings",
+  RouletteSettingSchema
+);
