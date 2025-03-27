@@ -130,7 +130,7 @@ const sendConfirmationEmail = async (email: string) => {
   const signedToken = await token.sign(new TextEncoder().encode(secret));
 
   const link = `${frontendUrl}/advertiser-register?step=3&token=${signedToken}`;
-  console.log("For email: ", signedToken, link);
+  console.log("For email: ", signedToken, link, process.env.NODEMAILER_USER);
   await transporter.sendMail({
     from: process.env.NODEMAILER_USER,
     to: email,
