@@ -1,10 +1,24 @@
 import { signJwt } from "../../utils/signJwt";
 import { verifyJwt } from "../../utils/verifyJwt";
-import { Admin } from "../../models/Admin";
+import { Admin, IAdmin } from "../../models/Admin";
 import { Response } from "express";
 
 export const adminAuthResolver = {
-  Query: {},
+  Query: {
+    getAllAdmins: async () => {
+      try {
+        const admins = await Admin.find();
+        return admins.map((admin: IAdmin) => ({
+          fullName: admin.fullName,
+          username: admin.username,
+          isActive: admin.isActive,
+        }));
+      } catch (error) {
+        console.log("Error fetching admins", error);
+        return null;
+      }
+    },
+  },
   Mutation: {
     loginAdmin: async (
       _: any,

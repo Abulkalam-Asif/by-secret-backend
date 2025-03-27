@@ -14,8 +14,14 @@ export const adminAuthTypeDefs = gql`
     message: String
   }
 
+  type AdminBasicInfo {
+    fullName: String!
+    username: String!
+    isActive: Boolean!
+  }
+
   type Query {
-    _empty: String
+    getAllAdmins: [AdminBasicInfo]
   }
 
   type Mutation {
