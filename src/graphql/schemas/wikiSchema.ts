@@ -7,11 +7,16 @@ export const wikiTypeDefs = gql`
     updatedAt: String!
   }
 
+  type MutationResponse {
+    success: Boolean!
+    message: String
+  }
+
   type Query {
     getWiki: Wiki
   }
 
   type Mutation {
-    updateWiki(content: String!): Wiki
+    updateWiki(content: String!): MutationResponse!
   }
 `;

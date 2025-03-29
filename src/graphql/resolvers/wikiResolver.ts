@@ -32,10 +32,16 @@ export const wikiResolver = {
         }
         // res.setHeader("Access-Control-Allow-Credentials", "true");
         // res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
-        return { content };
+        return {
+          success: true,
+          message: "Wiki updated successfully",
+        };
       } catch (error) {
         console.log("Error updating wiki", error);
-        return null;
+        return {
+          success: false,
+          message: "Error updating wiki",
+        };
       }
     },
   },
