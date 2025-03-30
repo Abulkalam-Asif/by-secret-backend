@@ -141,12 +141,45 @@ export const adminAuthResolver = {
         };
       }
     },
-    verifyToken: async (_: any, { token }: { token: string }) => {
+    authorizeAdmin: async (_: any, __: any, context: any) => {
+      const { req, res }: { req: any; res: Response } = context;
+      const authToken = req.cookies?.authToken;
+
+      if (!authToken) {
+        return {
+          success: false,
+          message: "Unauthorized",
+        };
+      }
+
       try {
-        await verifyJwt(token);
-        return true;
+        const decoded = await verifyJwt(authToken);
+        if (!decoded) {
+          return {
+            success: false,
+            message: "Unauthorized",
+          };
+        }
+
+        // Check if admin exists
+        const admin = await Admin.findOne({ email: decoded.email });
+        if (!admin) {
+          return {
+            success: false,
+            message: "Unauthorized",
+          };
+        }
+
+        return {
+          success: true,
+          message: "Authorized",
+        };
       } catch (error) {
-        return false;
+        console.log("Error authorizing admin", error);
+        return {
+          success: false,
+          message: "An error occurred while authorizing admin",
+        };
       }
     },
   },

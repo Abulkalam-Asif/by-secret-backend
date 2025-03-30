@@ -32,6 +32,6 @@ export const adminAuthTypeDefs = gql`
       password: String!
       isActive: Boolean!
     ): MutationResponse
-    verifyToken(token: String!): Boolean
+    authorizeAdmin: MutationResponse
   }
 `;

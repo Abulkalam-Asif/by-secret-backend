@@ -10,11 +10,21 @@ import connectToMongoDB from "./config/connectToMongoDB";
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const FRONTEND_URL = process.env.FRONTEND_URL;
+if (!FRONTEND_URL) {
+  throw new Error("FRONTEND_URL is not defined in .env file");
+}
 
 connectToMongoDB();
 
-app.use(cors({ origin: "*" }));
+app.use(
+  cors({
+    origin: FRONTEND_URL,
+    credentials: true,
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // Required middleware for Apollo
 app.use(express.json({ limit: "20mb" }));
@@ -38,6 +48,11 @@ async function startServer() {
     bodyParserConfig: { limit: "20mb" },
     app: app as any,
     path: "/graphql",
+    cors: {
+      origin: FRONTEND_URL,
+      credentials: true,
+      optionsSuccessStatus: 200,
+    }, // Override default cors to ensure credentials are supported
   });
 
   app.listen(PORT, () => {
