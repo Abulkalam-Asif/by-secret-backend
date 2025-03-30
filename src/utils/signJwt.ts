@@ -1,8 +1,8 @@
 import * as jose from "jose";
 
-export const signJwt = async (username: string) => {
+export const signJwt = async (email: string) => {
   const token = new jose.SignJWT({
-    username,
+    email,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()

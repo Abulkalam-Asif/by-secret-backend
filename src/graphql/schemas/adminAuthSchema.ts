@@ -4,7 +4,7 @@ export const adminAuthTypeDefs = gql`
   type Admin {
     id: ID!
     fullName: String!
-    username: String!
+    email: String!
     password: String!
     isActive: Boolean!
   }
@@ -16,7 +16,7 @@ export const adminAuthTypeDefs = gql`
 
   type AdminBasicInfo {
     fullName: String!
-    username: String!
+    email: String!
     isActive: Boolean!
   }
 
@@ -25,10 +25,10 @@ export const adminAuthTypeDefs = gql`
   }
 
   type Mutation {
-    loginAdmin(username: String!, password: String!): MutationResponse
+    loginAdmin(email: String!, password: String!): MutationResponse
     createAdmin(
       fullName: String!
-      username: String!
+      email: String!
       password: String!
       isActive: Boolean!
     ): MutationResponse

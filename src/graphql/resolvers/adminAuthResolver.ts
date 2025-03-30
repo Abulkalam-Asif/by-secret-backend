@@ -2,6 +2,10 @@ import { signJwt } from "../../utils/signJwt";
 import { verifyJwt } from "../../utils/verifyJwt";
 import { Admin, IAdmin } from "../../models/Admin";
 import { Response } from "express";
+import {
+  createAdminValidation,
+  loginAdminValidation,
+} from "../../validations/adminAuthValidations";
 
 export const adminAuthResolver = {
   Query: {
@@ -10,7 +14,7 @@ export const adminAuthResolver = {
         const admins = await Admin.find();
         return admins.map((admin: IAdmin) => ({
           fullName: admin.fullName,
-          username: admin.username,
+          email: admin.email,
           isActive: admin.isActive,
         }));
       } catch (error) {
@@ -22,18 +26,26 @@ export const adminAuthResolver = {
   Mutation: {
     loginAdmin: async (
       _: any,
-      { username, password }: { username: string; password: string },
+      { email, password }: { email: string; password: string },
       context: any
     ) => {
       const { res }: { res: Response } = context;
+
+      const loginError = loginAdminValidation(email, password);
+      if (loginError) {
+        return {
+          success: false,
+          message: loginError,
+        };
+      }
+
       try {
         // Check if admin exists
-        const admin = await Admin.findOne({ username });
+        const admin = await Admin.findOne({ email });
         if (!admin) {
           return {
             success: false,
-            message: "Invalid username or password",
-            token: null,
+            message: "Invalid email or password",
           };
         }
 
@@ -42,21 +54,20 @@ export const adminAuthResolver = {
         if (!isMatch) {
           return {
             success: false,
-            message: "Invalid username or password",
-            token: null,
+            message: "Invalid email or password",
           };
         }
 
         // Sign JWT
-        const token = await signJwt(admin.id);
+        const authToken = await signJwt(email);
 
-        // Return token
+        // Return authToken
         res.setHeader("Access-Control-Allow-Credentials", "true");
         res.setHeader(
           "Access-Control-Allow-Origin",
           process.env.FRONTEND_URL as string
         );
-        res.cookie("authToken", token, {
+        res.cookie("authToken", authToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
@@ -71,8 +82,7 @@ export const adminAuthResolver = {
         console.log("Error logging in", error);
         return {
           success: false,
-          message: "Invalid username or password",
-          token: null,
+          message: "An error occurred while logging in",
         };
       }
     },
@@ -80,30 +90,39 @@ export const adminAuthResolver = {
     createAdmin: async (
       _: any,
       {
-        username,
+        email,
         password,
         fullName,
         isActive,
       }: {
-        username: string;
+        email: string;
         password: string;
         fullName: string;
         isActive: boolean;
       }
     ) => {
+      const createAdminError = createAdminValidation(fullName, email, password);
+
+      if (createAdminError) {
+        return {
+          success: false,
+          message: createAdminError,
+        };
+      }
+
       try {
         // Checking if admin already exists
-        const existingAdmin = await Admin.findOne({ username });
+        const existingAdmin = await Admin.findOne({ email });
         if (existingAdmin) {
           return {
             success: false,
-            message: "An admin with this username already exists",
+            message: "An admin with this email already exists",
           };
         }
 
         // Creating new admin
         const admin = new Admin({
-          username,
+          email,
           password,
           fullName,
           isActive,
