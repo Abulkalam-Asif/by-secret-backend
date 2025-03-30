@@ -221,5 +221,45 @@ export const adminAuthResolver = {
         };
       }
     },
+
+    changeAdminPassword: async (
+      _: any,
+      { email, newPassword }: { email: string; newPassword: string }
+    ) => {
+      try {
+        // Find admin by email
+        const admin = await Admin.findOne({ email });
+        if (!admin) {
+          return {
+            success: false,
+            message: "Admin not found",
+          };
+        }
+
+        // Validate password - assuming similar validation as in createAdmin
+        // This should check for password complexity, length, etc.
+        if (!newPassword || newPassword.length < 8) {
+          return {
+            success: false,
+            message: "Password must be at least 8 characters long",
+          };
+        }
+
+        // Update password
+        admin.password = newPassword;
+        await admin.save();
+
+        return {
+          success: true,
+          message: "Password updated successfully",
+        };
+      } catch (error) {
+        console.log("Error changing admin password", error);
+        return {
+          success: false,
+          message: "An error occurred while changing admin password",
+        };
+      }
+    },
   },
 };

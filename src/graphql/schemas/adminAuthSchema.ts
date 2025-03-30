@@ -40,5 +40,7 @@ export const adminAuthTypeDefs = gql`
     ): MutationResponse
 
     changeAdminStatus(email: String!): MutationResponse
+
+    changeAdminPassword(email: String!, newPassword: String!): MutationResponse
   }
 `;
