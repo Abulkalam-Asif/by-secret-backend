@@ -22,7 +22,8 @@ app.use(
     origin: FRONTEND_URL,
     credentials: true,
     methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "Set-Cookie"],
+    exposedHeaders: ["Set-Cookie"],
   })
 );
 
@@ -52,6 +53,7 @@ async function startServer() {
       origin: FRONTEND_URL,
       credentials: true,
       optionsSuccessStatus: 200,
+      exposedHeaders: ["Set-Cookie"],
     }, // Override default cors to ensure credentials are supported
   });
 

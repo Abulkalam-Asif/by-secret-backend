@@ -61,17 +61,33 @@ export const adminAuthResolver = {
         // Sign JWT
         const authToken = await signJwt(email);
 
+        // Get the frontend URL for CORS settings
+        const frontendUrl = process.env.FRONTEND_URL as string;
+
+        // Check if we're using HTTPS in production
+        const isSecure = frontendUrl.startsWith("https://");
+
+        // Extract domain for cookie settings
+        let domain;
+        try {
+          // Extract domain from frontend URL if it's not localhost
+          const urlObj = new URL(frontendUrl);
+          domain =
+            urlObj.hostname !== "localhost" ? urlObj.hostname : undefined;
+        } catch (e) {
+          console.log("Error parsing frontend URL", e);
+        }
+
         // Return authToken
         res.setHeader("Access-Control-Allow-Credentials", "true");
-        res.setHeader(
-          "Access-Control-Allow-Origin",
-          process.env.FRONTEND_URL as string
-        );
+        res.setHeader("Access-Control-Allow-Origin", frontendUrl);
         res.cookie("authToken", authToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
+          secure: isSecure, // Only use secure if using HTTPS
           sameSite: "lax",
           maxAge: 3600000,
+          domain: domain, // Set domain for cross-domain cookies if needed
+          path: "/",
         });
 
         return {
