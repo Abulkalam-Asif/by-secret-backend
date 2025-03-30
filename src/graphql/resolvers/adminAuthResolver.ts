@@ -22,6 +22,42 @@ export const adminAuthResolver = {
         return null;
       }
     },
+    authorizeAdmin: async (_: any, __: any, context: any) => {
+      const { req, res }: { req: any; res: Response } = context;
+      const authToken = req.cookies?.authToken;
+
+      if (!authToken) {
+        return {
+          email: null,
+        };
+      }
+
+      try {
+        const decoded = await verifyJwt(authToken);
+        if (!decoded) {
+          return {
+            email: null,
+          };
+        }
+
+        // Check if admin exists
+        const admin = await Admin.findOne({ email: decoded.email });
+        if (!admin) {
+          return {
+            email: null,
+          };
+        }
+
+        return {
+          email: admin.email,
+        };
+      } catch (error) {
+        console.log("Error authorizing admin", error);
+        return {
+          email: null,
+        };
+      }
+    },
   },
   Mutation: {
     loginAdmin: async (
@@ -157,44 +193,31 @@ export const adminAuthResolver = {
         };
       }
     },
-    authorizeAdmin: async (_: any, __: any, context: any) => {
-      const { req, res }: { req: any; res: Response } = context;
-      const authToken = req.cookies?.authToken;
 
-      if (!authToken) {
+    changeAdminStatus: async (_: any, { email }: { email: string }) => {
+      const admin = await Admin.findOne({ email });
+      if (!admin) {
         return {
           success: false,
-          message: "Unauthorized",
+          message: "An error occurred while changing admin status",
         };
       }
-
       try {
-        const decoded = await verifyJwt(authToken);
-        if (!decoded) {
-          return {
-            success: false,
-            message: "Unauthorized",
-          };
-        }
-
-        // Check if admin exists
-        const admin = await Admin.findOne({ email: decoded.email });
-        if (!admin) {
-          return {
-            success: false,
-            message: "Unauthorized",
-          };
-        }
+        // Toggle admin status
+        admin.isActive = !admin.isActive;
+        await admin.save();
 
         return {
           success: true,
-          message: "Authorized",
+          message: `Admin status changed to ${
+            admin.isActive ? "active" : "inactive"
+          }`,
         };
       } catch (error) {
-        console.log("Error authorizing admin", error);
+        console.log("Error changing admin status", error);
         return {
           success: false,
-          message: "An error occurred while authorizing admin",
+          message: "An error occurred while changing admin status",
         };
       }
     },
