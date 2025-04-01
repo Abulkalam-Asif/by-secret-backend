@@ -85,6 +85,14 @@ export const adminAuthResolver = {
           };
         }
 
+        // Check if admin is active
+        if (!admin.isActive) {
+          return {
+            success: false,
+            message: "Admin is inactive",
+          };
+        }
+
         // Check if password is correct
         const isMatch = await admin.comparePassword(password);
         if (!isMatch) {
