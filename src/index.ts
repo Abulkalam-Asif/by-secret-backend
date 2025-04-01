@@ -7,6 +7,7 @@ import typeDefs from "./graphql/schemas";
 import { Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import connectToMongoDB from "./config/connectToMongoDB";
+import { createContext } from "./middleware/authMiddleware";
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
@@ -41,7 +42,7 @@ async function startServer() {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: ({ req, res }) => ({ req, res }),
+    context: createContext, // Use our authentication context middleware
   });
 
   await server.start();

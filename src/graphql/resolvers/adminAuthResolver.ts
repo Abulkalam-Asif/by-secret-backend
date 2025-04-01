@@ -6,10 +6,13 @@ import {
   createAdminValidation,
   loginAdminValidation,
 } from "../../validations/adminAuthValidations";
+import { requireAdmin } from "../../middleware/resolverMiddleware";
+import { AuthContext } from "../../middleware/authMiddleware";
 
 export const adminAuthResolver = {
   Query: {
-    getAllAdmins: async () => {
+    // Protected query - only admins can access
+    getAllAdmins: requireAdmin(async () => {
       try {
         const admins = await Admin.find();
         return admins.map((admin: IAdmin) => ({
@@ -21,9 +24,11 @@ export const adminAuthResolver = {
         console.log("Error fetching admins", error);
         return null;
       }
-    },
-    authorizeAdmin: async (_: any, __: any, context: any) => {
-      const { req, res }: { req: any; res: Response } = context;
+    }),
+
+    // Public query - can be accessed without authentication
+    authorizeAdmin: async (_: any, __: any, context: AuthContext) => {
+      const { req, res } = context;
       const authToken = req.cookies?.authToken;
 
       if (!authToken) {
@@ -60,10 +65,11 @@ export const adminAuthResolver = {
     },
   },
   Mutation: {
+    // Public mutation - for login
     loginAdmin: async (
       _: any,
       { email, password }: { email: string; password: string },
-      context: any
+      context: AuthContext
     ) => {
       const { res }: { res: Response } = context;
 
@@ -147,130 +153,142 @@ export const adminAuthResolver = {
       }
     },
 
-    createAdmin: async (
-      _: any,
-      {
-        email,
-        password,
-        fullName,
-        isActive,
-      }: {
-        email: string;
-        password: string;
-        fullName: string;
-        isActive: boolean;
-      }
-    ) => {
-      const createAdminError = createAdminValidation(fullName, email, password);
-
-      if (createAdminError) {
-        return {
-          success: false,
-          message: createAdminError,
-        };
-      }
-
-      try {
-        // Checking if admin already exists
-        const existingAdmin = await Admin.findOne({ email });
-        if (existingAdmin) {
-          return {
-            success: false,
-            message: "An admin with this email already exists",
-          };
-        }
-
-        // Creating new admin
-        const admin = new Admin({
+    // Protected mutations - only admins can access
+    createAdmin: requireAdmin(
+      async (
+        _: any,
+        {
           email,
           password,
           fullName,
           isActive,
-        });
-        await admin.save();
+        }: {
+          email: string;
+          password: string;
+          fullName: string;
+          isActive: boolean;
+        }
+      ) => {
+        const createAdminError = createAdminValidation(
+          fullName,
+          email,
+          password
+        );
 
-        return {
-          success: true,
-          message: "Admin created successfully",
-        };
-      } catch (error) {
-        console.log("Error creating admin", error);
-        return {
-          success: false,
-          message: "An error occurred while creating admin",
-        };
+        if (createAdminError) {
+          return {
+            success: false,
+            message: createAdminError,
+          };
+        }
+
+        try {
+          // Checking if admin already exists
+          const existingAdmin = await Admin.findOne({ email });
+          if (existingAdmin) {
+            return {
+              success: false,
+              message: "An admin with this email already exists",
+            };
+          }
+
+          // Creating new admin
+          const admin = new Admin({
+            email,
+            password,
+            fullName,
+            isActive,
+          });
+          await admin.save();
+
+          return {
+            success: true,
+            message: "Admin created successfully",
+          };
+        } catch (error) {
+          console.log("Error creating admin", error);
+          return {
+            success: false,
+            message: "An error occurred while creating admin",
+          };
+        }
       }
-    },
+    ),
 
-    changeAdminStatus: async (_: any, { email }: { email: string }) => {
-      const admin = await Admin.findOne({ email });
-      if (!admin) {
-        return {
-          success: false,
-          message: "An error occurred while changing admin status",
-        };
-      }
-      try {
-        // Toggle admin status
-        admin.isActive = !admin.isActive;
-        await admin.save();
-
-        return {
-          success: true,
-          message: `Admin status changed to ${
-            admin.isActive ? "active" : "inactive"
-          }`,
-        };
-      } catch (error) {
-        console.log("Error changing admin status", error);
-        return {
-          success: false,
-          message: "An error occurred while changing admin status",
-        };
-      }
-    },
-
-    changeAdminPassword: async (
-      _: any,
-      { email, newPassword }: { email: string; newPassword: string }
-    ) => {
-      try {
-        // Find admin by email
+    changeAdminStatus: requireAdmin(
+      async (_: any, { email }: { email: string }) => {
         const admin = await Admin.findOne({ email });
         if (!admin) {
           return {
             success: false,
-            message: "Admin not found",
+            message: "An error occurred while changing admin status",
           };
         }
+        try {
+          // Toggle admin status
+          admin.isActive = !admin.isActive;
+          await admin.save();
 
-        // Validate password - assuming similar validation as in createAdmin
-        // This should check for password complexity, length, etc.
-        if (!newPassword || newPassword.length < 8) {
+          return {
+            success: true,
+            message: `Admin status changed to ${
+              admin.isActive ? "active" : "inactive"
+            }`,
+          };
+        } catch (error) {
+          console.log("Error changing admin status", error);
           return {
             success: false,
-            message: "Password must be at least 8 characters long",
+            message: "An error occurred while changing admin status",
           };
         }
-
-        // Update password
-        admin.password = newPassword;
-        await admin.save();
-
-        return {
-          success: true,
-          message: "Password updated successfully",
-        };
-      } catch (error) {
-        console.log("Error changing admin password", error);
-        return {
-          success: false,
-          message: "An error occurred while changing admin password",
-        };
       }
-    },
+    ),
 
-    logoutAdmin: async (_: any, __: any, context: any) => {
+    changeAdminPassword: requireAdmin(
+      async (
+        _: any,
+        { email, newPassword }: { email: string; newPassword: string }
+      ) => {
+        try {
+          // Find admin by email
+          const admin = await Admin.findOne({ email });
+          if (!admin) {
+            return {
+              success: false,
+              message: "Admin not found",
+            };
+          }
+
+          // Validate password - assuming similar validation as in createAdmin
+          // This should check for password complexity, length, etc.
+          if (!newPassword || newPassword.length < 8) {
+            return {
+              success: false,
+              message: "Password must be at least 8 characters long",
+            };
+          }
+
+          // Update password
+          admin.password = newPassword;
+          await admin.save();
+
+          return {
+            success: true,
+            message: "Password updated successfully",
+          };
+        } catch (error) {
+          console.log("Error changing admin password", error);
+          return {
+            success: false,
+            message: "An error occurred while changing admin password",
+          };
+        }
+      }
+    ),
+
+    // Public mutation - for logout
+    logoutAdmin: async (_: any, __: any, context: AuthContext) => {
       const { res }: { res: Response } = context;
 
       try {
