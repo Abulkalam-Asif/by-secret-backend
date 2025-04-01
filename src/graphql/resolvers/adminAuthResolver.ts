@@ -216,12 +216,28 @@ export const adminAuthResolver = {
     ),
 
     changeAdminStatus: requireAdmin(
-      async (_: any, { email }: { email: string }) => {
+      async (_: any, { email }: { email: string }, context: AuthContext) => {
+        // Check if the requesting admin is admin@admin.com
+        if (context.user?.email !== "admin@admin.com") {
+          return {
+            success: false,
+            message: "Only the super admin can change admin status",
+          };
+        }
+
+        // Prevent changing the super admin's own status
+        if (email === "admin@admin.com") {
+          return {
+            success: false,
+            message: "Cannot change the status of the super admin",
+          };
+        }
+
         const admin = await Admin.findOne({ email });
         if (!admin) {
           return {
             success: false,
-            message: "An error occurred while changing admin status",
+            message: "Admin not found",
           };
         }
         try {
@@ -248,8 +264,17 @@ export const adminAuthResolver = {
     changeAdminPassword: requireAdmin(
       async (
         _: any,
-        { email, newPassword }: { email: string; newPassword: string }
+        { email, newPassword }: { email: string; newPassword: string },
+        context: AuthContext
       ) => {
+        // Check if the requesting admin is admin@admin.com
+        if (context.user?.email !== "admin@admin.com") {
+          return {
+            success: false,
+            message: "Only the super admin can change passwords",
+          };
+        }
+
         try {
           // Find admin by email
           const admin = await Admin.findOne({ email });
