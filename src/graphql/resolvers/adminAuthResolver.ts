@@ -269,5 +269,47 @@ export const adminAuthResolver = {
         };
       }
     },
+
+    logoutAdmin: async (_: any, __: any, context: any) => {
+      const { res }: { res: Response } = context;
+
+      try {
+        // Get the frontend URL for CORS settings
+        const frontendUrl = process.env.FRONTEND_URL as string;
+
+        // Extract domain for cookie settings
+        let domain;
+        try {
+          // Extract domain from frontend URL if it's not localhost
+          const urlObj = new URL(frontendUrl);
+          domain =
+            urlObj.hostname !== "localhost" ? urlObj.hostname : undefined;
+        } catch (e) {
+          console.log("Error parsing frontend URL", e);
+        }
+
+        // Clear the auth cookie
+        res.setHeader("Access-Control-Allow-Credentials", "true");
+        res.setHeader("Access-Control-Allow-Origin", frontendUrl);
+        res.clearCookie("authToken", {
+          httpOnly: true,
+          secure: frontendUrl.startsWith("https://"),
+          sameSite: "lax",
+          path: "/",
+          domain: domain,
+        });
+
+        return {
+          success: true,
+          message: "Successfully logged out",
+        };
+      } catch (error) {
+        console.log("Error logging out", error);
+        return {
+          success: false,
+          message: "An error occurred while logging out",
+        };
+      }
+    },
   },
 };
