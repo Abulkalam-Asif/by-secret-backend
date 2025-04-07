@@ -1,4 +1,5 @@
 import { adminAuthTypeDefs } from "./adminAuthSchema";
+import { generalSettingsTypeDefs } from "./generalSettingsSchema";
 import { adsSettingsTypeDefs } from "./adsSettingsSchema";
 import { advertiserTypeDefs } from "./advertiserSchema";
 import { rouletteSettingsTypeDefs } from "./rouletteSettingsSchema";
@@ -10,6 +11,7 @@ const typeDefs = [
   adsSettingsTypeDefs,
   rouletteSettingsTypeDefs,
   advertiserTypeDefs,
+  generalSettingsTypeDefs,
 ];
 
 export default typeDefs;
