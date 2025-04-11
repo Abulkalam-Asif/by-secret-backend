@@ -3,6 +3,10 @@ import transporter from "../../config/nodemailer";
 import * as jose from "jose";
 import cloudinary from "../../config/cloudinary";
 import bcryptjs from "bcryptjs";
+import { signJwt } from "../../utils/signJwt";
+import { loginAdvertiserValidation } from "../../validations/advertiserAuthValidations";
+import { AuthContext } from "../../middleware/authMiddleware";
+import { Response } from "express";
 
 export const advertiserResolver = {
   Query: {},
@@ -44,7 +48,6 @@ export const advertiserResolver = {
         // Send confirmation email
         await sendConfirmationEmail(email);
         console.log("Email sent");
-
 
         return { success: true, message: "Step 1 completed" };
       } catch (error) {
@@ -111,6 +114,91 @@ export const advertiserResolver = {
       } catch (error) {
         console.log("Error submitting advertiser step 3", error);
         return { success: false, message: "Error registering advertiser" };
+      }
+    },
+    loginAdvertiser: async (
+      _: any,
+      { email, password }: any,
+      context: AuthContext
+    ) => {
+      const loginError = loginAdvertiserValidation(email, password);
+      if (loginError) {
+        return {
+          success: false,
+          message: loginError,
+        };
+      }
+
+      const { res }: { res: Response } = context;
+
+      try {
+        // Check if the advertiser exists
+        const advertiser = await Advertiser.findOne({ email });
+        if (!advertiser) {
+          return {
+            success: false,
+            message: "Invalid email or password",
+          };
+        }
+
+        // If the advertiser password is not set, it means that the advertiser is not verified
+        if (!advertiser.password) {
+          return {
+            success: false,
+            message:
+              "Advertiser not verified. Please check your email for verification link",
+          };
+        }
+
+        const isMatch = await advertiser.comparePassword(password);
+        if (!isMatch) {
+          return {
+            success: false,
+            message: "Invalid email or password",
+          };
+        }
+
+        // Sign JWT token
+        const authToken = await signJwt(email);
+
+        // Get the frontend URL for CORS settings
+        const frontendUrl = process.env.FRONTEND_URL as string;
+
+        // Check if we're using HTTPS in production
+        const isSecure = frontendUrl.startsWith("https://");
+
+        // Extract domain for cookie settings
+        let domain;
+        try {
+          // Extract domain from frontend URL if it's not localhost
+          const urlObj = new URL(frontendUrl);
+          domain =
+            urlObj.hostname !== "localhost" ? urlObj.hostname : undefined;
+        } catch (e) {
+          console.log("Error parsing frontend URL", e);
+        }
+
+        // Return authToken
+        res.setHeader("Access-Control-Allow-Credentials", "true");
+        res.setHeader("Access-Control-Allow-Origin", frontendUrl);
+        res.cookie("authToken", authToken, {
+          httpOnly: true,
+          secure: isSecure, // Set to true if using HTTPS
+          sameSite: "lax",
+          maxAge: 3600000,
+          domain: domain,
+          path: "/",
+        });
+        return {
+          success: true,
+          message: "Login successful",
+        };
+      } catch (error) {
+        console.log("Error logging in advertiser", error);
+        return {
+          success: false,
+          message: "An error occurred while logging in",
+        };
       }
     },
   },

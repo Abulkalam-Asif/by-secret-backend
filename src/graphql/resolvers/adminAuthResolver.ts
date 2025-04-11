@@ -71,8 +71,6 @@ export const adminAuthResolver = {
       { email, password }: { email: string; password: string },
       context: AuthContext
     ) => {
-      const { res }: { res: Response } = context;
-
       const loginError = loginAdminValidation(email, password);
       if (loginError) {
         return {
@@ -80,6 +78,8 @@ export const adminAuthResolver = {
           message: loginError,
         };
       }
+
+      const { res }: { res: Response } = context;
 
       try {
         // Check if admin exists

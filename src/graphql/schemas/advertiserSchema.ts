@@ -34,5 +34,7 @@ export const advertiserTypeDefs = gql`
       logo: String!
       token: String!
     ): MutationResponse!
+
+    loginAdvertiser(email: String!, password: String!): MutationResponse!
   }
 `;

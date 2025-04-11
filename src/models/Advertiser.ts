@@ -1,4 +1,16 @@
 import mongoose, { Schema } from "mongoose";
+import bcrypt from "bcryptjs";
+
+export interface IAdvertiser extends Document {
+  companyName: string;
+  fullContactName: string;
+  email: string;
+  password: string;
+  phone: string;
+  address: string;
+  logo: string;
+  comparePassword(candidatePassword: string): Promise<boolean>;
+}
 
 const AdvertiserSchema: Schema = new Schema({
   companyName: { type: String, required: true },
@@ -14,4 +26,13 @@ const AdvertiserSchema: Schema = new Schema({
   },
 });
 
-export const Advertiser = mongoose.model("Advertiser", AdvertiserSchema);
+AdvertiserSchema.methods.comparePassword = async function (
+  candidatePassword: string
+): Promise<boolean> {
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
+export const Advertiser = mongoose.model<IAdvertiser>(
+  "Advertiser",
+  AdvertiserSchema
+);
