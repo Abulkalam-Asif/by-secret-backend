@@ -26,23 +26,23 @@ export const adminAuthTypeDefs = gql`
 
   type Query {
     getAllAdmins: [AdminBasicInfo]
-    authorizeAdmin: AdminAuth
+    authorizeAdmin: AdminAuth!
   }
 
   type Mutation {
-    loginAdmin(email: String!, password: String!): MutationResponse
+    loginAdmin(email: String!, password: String!): MutationResponse!
 
     createAdmin(
       fullName: String!
       email: String!
       password: String!
       isActive: Boolean!
-    ): MutationResponse
+    ): MutationResponse!
 
     changeAdminStatus(email: String!): MutationResponse
 
-    changeAdminPassword(email: String!, newPassword: String!): MutationResponse
+    changeAdminPassword(email: String!, newPassword: String!): MutationResponse!
 
-    logoutAdmin: MutationResponse
+    logoutAdmin: MutationResponse!
   }
 `;

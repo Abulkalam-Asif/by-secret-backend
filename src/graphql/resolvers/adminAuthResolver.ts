@@ -26,7 +26,6 @@ export const adminAuthResolver = {
       }
     }),
 
-    // Public query - can be accessed without authentication
     authorizeAdmin: async (_: any, __: any, context: AuthContext) => {
       const { req, res } = context;
       const authToken = req.cookies?.authToken;
@@ -65,7 +64,6 @@ export const adminAuthResolver = {
     },
   },
   Mutation: {
-    // Public mutation - for login
     loginAdmin: async (
       _: any,
       { email, password }: { email: string; password: string },
@@ -152,8 +150,48 @@ export const adminAuthResolver = {
         };
       }
     },
+    logoutAdmin: async (_: any, __: any, context: AuthContext) => {
+      const { res }: { res: Response } = context;
 
-    // Protected mutations - only admins can access
+      try {
+        // Get the frontend URL for CORS settings
+        const frontendUrl = process.env.FRONTEND_URL as string;
+
+        // Extract domain for cookie settings
+        let domain;
+        try {
+          // Extract domain from frontend URL if it's not localhost
+          const urlObj = new URL(frontendUrl);
+          domain =
+            urlObj.hostname !== "localhost" ? urlObj.hostname : undefined;
+        } catch (e) {
+          console.log("Error parsing frontend URL", e);
+        }
+
+        // Clear the auth cookie
+        res.setHeader("Access-Control-Allow-Credentials", "true");
+        res.setHeader("Access-Control-Allow-Origin", frontendUrl);
+        res.clearCookie("authToken", {
+          httpOnly: true,
+          secure: frontendUrl.startsWith("https://"),
+          sameSite: "lax",
+          path: "/",
+          domain: domain,
+        });
+
+        return {
+          success: true,
+          message: "Successfully logged out",
+        };
+      } catch (error) {
+        console.log("Error logging out", error);
+        return {
+          success: false,
+          message: "An error occurred while logging out",
+        };
+      }
+    },
+    // Protected mutation
     createAdmin: requireAdmin(
       async (
         _: any,
@@ -214,7 +252,7 @@ export const adminAuthResolver = {
         }
       }
     ),
-
+    // Protected mutation
     changeAdminStatus: requireAdmin(
       async (_: any, { email }: { email: string }, context: AuthContext) => {
         // Check if the requesting admin is admin@admin.com
@@ -260,7 +298,7 @@ export const adminAuthResolver = {
         }
       }
     ),
-
+    // Protected mutation
     changeAdminPassword: requireAdmin(
       async (
         _: any,
@@ -311,48 +349,5 @@ export const adminAuthResolver = {
         }
       }
     ),
-
-    // Public mutation - for logout
-    logoutAdmin: async (_: any, __: any, context: AuthContext) => {
-      const { res }: { res: Response } = context;
-
-      try {
-        // Get the frontend URL for CORS settings
-        const frontendUrl = process.env.FRONTEND_URL as string;
-
-        // Extract domain for cookie settings
-        let domain;
-        try {
-          // Extract domain from frontend URL if it's not localhost
-          const urlObj = new URL(frontendUrl);
-          domain =
-            urlObj.hostname !== "localhost" ? urlObj.hostname : undefined;
-        } catch (e) {
-          console.log("Error parsing frontend URL", e);
-        }
-
-        // Clear the auth cookie
-        res.setHeader("Access-Control-Allow-Credentials", "true");
-        res.setHeader("Access-Control-Allow-Origin", frontendUrl);
-        res.clearCookie("authToken", {
-          httpOnly: true,
-          secure: frontendUrl.startsWith("https://"),
-          sameSite: "lax",
-          path: "/",
-          domain: domain,
-        });
-
-        return {
-          success: true,
-          message: "Successfully logged out",
-        };
-      } catch (error) {
-        console.log("Error logging out", error);
-        return {
-          success: false,
-          message: "An error occurred while logging out",
-        };
-      }
-    },
   },
 };
