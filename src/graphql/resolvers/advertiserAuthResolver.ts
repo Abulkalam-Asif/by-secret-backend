@@ -9,6 +9,7 @@ import { AuthContext } from "../../middleware/authMiddleware";
 import { Response } from "express";
 import { Request } from "express";
 import { verifyJwt } from "../../utils/verifyJwt";
+import { requireAdmin } from "../../middleware/resolverMiddleware";
 
 export const advertiserAuthResolver = {
   Query: {
@@ -49,6 +50,18 @@ export const advertiserAuthResolver = {
         };
       }
     },
+    getAdvertisersCount: requireAdmin(async (_: any, __: any) => {
+      try {
+        const advertisersCount = await Advertiser.countDocuments({});
+        if (advertisersCount === null) {
+          return 0;
+        }
+        return advertisersCount;
+      } catch (error) {
+        console.log("Error getting advertisers count", error);
+        return 0;
+      }
+    }),
   },
   Mutation: {
     loginAdvertiser: async (

@@ -22,6 +22,7 @@ export const advertiserAuthTypeDefs = gql`
 
   type Query {
     authorizeAdvertiser: AdvertiserAuth
+    getAdvertisersCount: Int
   }
 
   type Mutation {
