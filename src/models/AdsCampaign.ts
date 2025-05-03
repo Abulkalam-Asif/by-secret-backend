@@ -1,0 +1,27 @@
+import mongoose, { Schema } from "mongoose";
+
+const AdsCampaignSchema: Schema = new Schema(
+  {
+    advertiser: {
+      type: Schema.Types.ObjectId,
+      ref: "Advertiser",
+      required: true,
+    },
+    name: { type: String, required: true },
+    adImage: { type: String, required: true }, // URL to the ad image stored in Cloudinary
+    action: { type: String, required: true },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
+    budget: { type: Number, required: true },
+    status: {
+      type: String,
+      enum: ["APPROVED", "PENDING", "REJECTED"],
+      default: "PENDING",
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+export const AdsCampaign = mongoose.model("AdsCampaign", AdsCampaignSchema);

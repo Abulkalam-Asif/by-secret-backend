@@ -9,10 +9,8 @@ export default async function connectToMongoDB() {
     // Allow for flexible MongoDB connection string from environment variable
     const connectionString = process.env.MONGODB_URI;
 
-    const conn = await mongoose.connect(connectionString, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    // Removed deprecated options
+    const conn = await mongoose.connect(connectionString);
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error: any) {

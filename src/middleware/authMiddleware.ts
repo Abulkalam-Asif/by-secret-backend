@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
 import { verifyJwt } from "../utils/verifyJwt";
 import { Admin } from "../models/Admin";
+import { Advertiser } from "../models/Advertiser";
 
 export interface AuthContext {
   req: Request;
   res: Response;
   user?: {
+    _id: string;
     email: string;
     role: "admin" | "advertiser" | "public";
   };
@@ -40,12 +42,25 @@ export const createContext = async ({
     const admin = await Admin.findOne({ email: decoded.email });
     if (admin && admin.isActive) {
       context.user = {
+        _id: (admin._id as string).toString(),
         email: admin.email,
         role: "admin",
       };
     }
 
-    // Note: Later we can add advertiser role check here
+    // If not an admin, check if user is an advertiser
+    if (!context.user) {
+      const advertiser = await Advertiser.findOne({
+        email: decoded.email,
+      });
+      if (advertiser) {
+        context.user = {
+          _id: advertiser._id.toString(),
+          email: advertiser.email,
+          role: "advertiser",
+        };
+      }
+    }
 
     return context;
   } catch (error) {

@@ -4,6 +4,7 @@ import { adsSettingsTypeDefs } from "./adsSettingsSchema";
 import { rouletteSettingsTypeDefs } from "./rouletteSettingsSchema";
 import { wikiTypeDefs } from "./wikiSchema";
 import { advertiserAuthTypeDefs } from "./advertiserAuthSchema";
+import { adsCampaignTypeDefs } from "./adsCampaignSchema";
 
 const typeDefs = [
   adminAuthTypeDefs,
@@ -12,6 +13,7 @@ const typeDefs = [
   rouletteSettingsTypeDefs,
   generalSettingsTypeDefs,
   advertiserAuthTypeDefs,
+  adsCampaignTypeDefs,
 ];
 
 export default typeDefs;

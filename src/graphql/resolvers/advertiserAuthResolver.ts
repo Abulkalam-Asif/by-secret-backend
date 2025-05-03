@@ -10,6 +10,7 @@ import { Response } from "express";
 import { Request } from "express";
 import { verifyJwt } from "../../utils/verifyJwt";
 import { requireAdmin } from "../../middleware/resolverMiddleware";
+import { uploadImageToCloudinary } from "../../utils/uploadImageToCloudinary";
 
 export const advertiserAuthResolver = {
   Query: {
@@ -270,7 +271,10 @@ export const advertiserAuthResolver = {
         // Upload logo to cloudinary if it exists
         let logoUrl = "";
         if (logo) {
-          logoUrl = await uploadLogoToCloudinary(logo);
+          logoUrl = await uploadImageToCloudinary(
+            logo,
+            "by-secret/advertiser-logos"
+          );
         }
 
         const hashedPassword = await bcryptjs.hash(password, 10);
@@ -333,11 +337,4 @@ const verifyToken = async (token: string) => {
   );
 
   return payload;
-};
-
-const uploadLogoToCloudinary = async (logo: string) => {
-  const response = await cloudinary.uploader.upload(logo, {
-    folder: "by-secret/advertiser-logos",
-  });
-  return response.secure_url;
 };
