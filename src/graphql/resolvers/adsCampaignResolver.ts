@@ -1,6 +1,7 @@
 import { AuthContext } from "../../middleware/authMiddleware";
 import { requireAdvertiser } from "../../middleware/resolverMiddleware";
 import { AdsCampaign } from "../../models/AdsCampaign";
+import { deleteImageFromCloudinary } from "../../utils/deleteImageFromCloudinary";
 import { uploadImageToCloudinary } from "../../utils/uploadImageToCloudinary";
 import { createAdsCampaignValidation } from "../../validations/adsCampaignValidations";
 
@@ -81,6 +82,81 @@ export const adsCampaignResolver = {
           return {
             success: false,
             message: "Failed to create ads campaign",
+          };
+        }
+      }
+    ),
+    updateAdsCampaign: requireAdvertiser(
+      async (
+        _: any,
+        { id, name, adImage, action, startDate, endDate, budget }: any,
+        context: AuthContext
+      ) => {
+        const advertiser = context.user?._id;
+        if (!advertiser) {
+          return {
+            success: false,
+            message: "User not authenticated",
+          };
+        }
+        const validationResponse = createAdsCampaignValidation(
+          name,
+          adImage,
+          action,
+          startDate,
+          endDate,
+          budget
+        );
+        if (validationResponse) {
+          return {
+            success: false,
+            message: validationResponse,
+          };
+        }
+        try {
+          const campaign = await AdsCampaign.findById(id);
+          if (!campaign) {
+            return {
+              success: false,
+              message: "An error occurred while updating the ads campaign",
+            };
+          }
+          // If the adImage is a base64 string, delete the previous image from Cloudinary and upload the new onej
+          if (adImage.startsWith("data:image/")) {
+            const previousAdImage = campaign.adImage as string;
+            const response = await deleteImageFromCloudinary(
+              previousAdImage,
+              "by-secret/ads-campaigns"
+            );
+            if (response) {
+              const adImageUrl = await uploadImageToCloudinary(
+                adImage,
+                "by-secret/ads-campaigns"
+              );
+              campaign.adImage = adImageUrl;
+            } else {
+              return {
+                success: false,
+                message: "An error occurred while updating the ads campaign",
+              };
+            }
+          }
+          campaign.name = name;
+          campaign.action = action;
+          campaign.startDate = startDate;
+          campaign.endDate = endDate;
+          campaign.budget = budget;
+          await campaign.save();
+          return {
+            success: true,
+            message: "Successfully updated ads campaign",
+            campaign,
+          };
+        } catch (error) {
+          console.log("Error updating ads campaign", error);
+          return {
+            success: false,
+            message: "Failed to update ads campaign",
           };
         }
       }
