@@ -45,6 +45,12 @@ export const adsCampaignTypeDefs = `
     action: String!
   }
 
+  type AdsCampaignCount {
+    pending: Int!
+    approved: Int!
+    rejected: Int!
+  }
+
   type MutationResponse {
     success: Boolean
     message: String
@@ -52,6 +58,7 @@ export const adsCampaignTypeDefs = `
 
   type Query {
     getAdsCampaigns: [AdsCampaign!]!
+    getAdsCampaignsCount: AdsCampaignCount!
     getPendingAdsCampaigns: [PendingAdsCampaign!]!
     getApprovedAdsCampaigns: [ApprovedAdsCampaign!]!
     getRejectedAdsCampaigns: [RejectedAdsCampaign!]!

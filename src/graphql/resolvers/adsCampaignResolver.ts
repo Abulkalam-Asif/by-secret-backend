@@ -10,7 +10,6 @@ import { createAdsCampaignValidation } from "../../validations/adsCampaignValida
 
 export const adsCampaignResolver = {
   Query: {
-    // Only advertisers can get their ads campaigns
     getAdsCampaigns: requireAdvertiser(
       async (_: any, __: any, context: AuthContext) => {
         const advertiser = context.user?._id;
@@ -39,7 +38,39 @@ export const adsCampaignResolver = {
         }
       }
     ),
-    // Only admins can get all pending ads campaigns
+    getAdsCampaignsCount: requireAdvertiser(
+      async (_: any, __: any, context: AuthContext) => {
+        const advertiser = context.user?._id;
+        if (!advertiser) {
+          return {
+            success: false,
+            message: "User not authenticated",
+          };
+        }
+        try {
+          const pendingCount = await AdsCampaign.countDocuments({
+            advertiser,
+            status: "PENDING",
+          });
+          const approvedCount = await AdsCampaign.countDocuments({
+            advertiser,
+            status: "APPROVED",
+          });
+          const rejectedCount = await AdsCampaign.countDocuments({
+            advertiser,
+            status: "REJECTED",
+          });
+          return {
+            pending: pendingCount,
+            approved: approvedCount,
+            rejected: rejectedCount,
+          };
+        } catch (error) {
+          console.log("Error getting ads campaign count", error);
+          return null;
+        }
+      }
+    ),
     getPendingAdsCampaigns: requireAdmin(
       async (_: any, __: any, context: AuthContext) => {
         try {
