@@ -18,6 +18,10 @@ const AdsCampaignSchema: Schema = new Schema(
       enum: ["APPROVED", "PENDING", "REJECTED"],
       default: "PENDING",
     },
+    rejectionReason: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,

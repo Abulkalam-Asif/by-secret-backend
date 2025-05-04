@@ -10,6 +10,40 @@ export const adsCampaignTypeDefs = `
     status: String!
   }
 
+  type PendingAdsCampaign {
+    id: ID!
+    name: String!
+    advertiser: String!
+    dateRequested: String!
+    days: String!
+    startDate: String!
+    budget: String!
+    media: String!
+    action: String!
+  }
+
+  type ApprovedAdsCampaign {
+    id: ID!
+    name: String!
+    advertiser: String!
+    dateCreated: String!
+    startDate: String!
+    endDate: String!
+    budget: String!
+  }
+
+  type RejectedAdsCampaign  {
+    id: ID!
+    name: String!
+    advertiser: String!
+    dateRequested: String!
+    days: String!
+    startDate: String!
+    budget: String!
+    media: String!
+    action: String!
+  }
+
   type MutationResponse {
     success: Boolean
     message: String
@@ -17,7 +51,9 @@ export const adsCampaignTypeDefs = `
 
   type Query {
     getAdsCampaigns: [AdsCampaign!]!
-    getAdsCampaign(id: ID!): AdsCampaign
+    getPendingAdsCampaigns: [PendingAdsCampaign!]!
+    getApprovedAdsCampaigns: [ApprovedAdsCampaign!]!
+    getRejectedAdsCampaigns: [RejectedAdsCampaign!]!
   }
 
   type Mutation {
@@ -39,7 +75,7 @@ export const adsCampaignTypeDefs = `
       endDate: String
       budget: String
     ): MutationResponse!
-
-    deleteAdsCampaign(id: ID!): Boolean!
+    approveAdsCampaign(id: ID!): MutationResponse!
+    rejectAdsCampaign(id: ID!, rejectionReason: String!): MutationResponse!
   }
 `;

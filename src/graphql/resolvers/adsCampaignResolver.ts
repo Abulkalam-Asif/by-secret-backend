@@ -1,5 +1,8 @@
 import { AuthContext } from "../../middleware/authMiddleware";
-import { requireAdvertiser } from "../../middleware/resolverMiddleware";
+import {
+  requireAdmin,
+  requireAdvertiser,
+} from "../../middleware/resolverMiddleware";
 import { AdsCampaign } from "../../models/AdsCampaign";
 import { deleteImageFromCloudinary } from "../../utils/deleteImageFromCloudinary";
 import { uploadImageToCloudinary } from "../../utils/uploadImageToCloudinary";
@@ -22,6 +25,82 @@ export const adsCampaignResolver = {
           return campaigns;
         } catch (error) {
           console.log("Error getting ads campaigns", error);
+          return null;
+        }
+      }
+    ),
+    // Only admins can get all pending ads campaigns
+    getPendingAdsCampaigns: requireAdmin(
+      async (_: any, __: any, context: AuthContext) => {
+        try {
+          const campaigns = await AdsCampaign.find({
+            status: "PENDING",
+          }).populate("advertiser", "companyName");
+          return campaigns.map((campaign: any) => ({
+            id: campaign._id,
+            name: campaign.name,
+            advertiser: campaign.advertiser.companyName,
+            dateRequested: campaign.createdAt,
+            days: Math.floor(
+              (campaign.endDate.getTime() - campaign.startDate.getTime()) /
+                (1000 * 3600 * 24)
+            ),
+            startDate: campaign.startDate,
+            budget: campaign.budget,
+            media: campaign.adImage,
+            action: campaign.action,
+          }));
+        } catch (error) {
+          console.log("Error getting pending ads campaigns", error);
+          return null;
+        }
+      }
+    ),
+    // Only admins can get all approved ads campaigns
+    getApprovedAdsCampaigns: requireAdmin(
+      async (_: any, __: any, context: AuthContext) => {
+        try {
+          const campaigns = await AdsCampaign.find({
+            status: "APPROVED",
+          }).populate("advertiser", "companyName");
+          return campaigns.map((campaign: any) => ({
+            id: campaign._id,
+            name: campaign.name,
+            advertiser: campaign.advertiser.companyName,
+            dateCreated: campaign.createdAt,
+            startDate: campaign.startDate,
+            endDate: campaign.endDate,
+            budget: campaign.budget,
+          }));
+        } catch (error) {
+          console.log("Error getting approved ads campaigns", error);
+          return null;
+        }
+      }
+    ),
+    // Only admins can get all rejected ads campaigns
+    getRejectedAdsCampaigns: requireAdmin(
+      async (_: any, __: any, context: AuthContext) => {
+        try {
+          const campaigns = await AdsCampaign.find({
+            status: "REJECTED",
+          }).populate("advertiser", "companyName");
+          return campaigns.map((campaign: any) => ({
+            id: campaign._id,
+            name: campaign.name,
+            advertiser: campaign.advertiser.companyName,
+            dateRequested: campaign.createdAt,
+            days: Math.floor(
+              (campaign.endDate.getTime() - campaign.startDate.getTime()) /
+                (1000 * 3600 * 24)
+            ),
+            startDate: campaign.startDate,
+            budget: campaign.budget,
+            media: campaign.adImage,
+            action: campaign.action,
+          }));
+        } catch (error) {
+          console.log("Error getting rejected ads campaigns", error);
           return null;
         }
       }
@@ -157,6 +236,63 @@ export const adsCampaignResolver = {
           return {
             success: false,
             message: "Failed to update ads campaign",
+          };
+        }
+      }
+    ),
+    approveAdsCampaign: requireAdmin(
+      async (_: any, { id }: { id: string }, context: AuthContext) => {
+        try {
+          const campaign = await AdsCampaign.findById(id);
+          if (!campaign) {
+            return {
+              success: false,
+              message: "An error occurred while approving the ads campaign",
+            };
+          }
+          campaign.status = "APPROVED";
+          await campaign.save();
+          return {
+            success: true,
+            message: "Successfully approved ads campaign",
+            campaign,
+          };
+        } catch (error) {
+          console.log("Error approving ads campaign", error);
+          return {
+            success: false,
+            message: "Failed to approve ads campaign",
+          };
+        }
+      }
+    ),
+    rejectAdsCampaign: requireAdmin(
+      async (
+        _: any,
+        { id, rejectionReason }: { id: string; rejectionReason: string },
+        context: AuthContext
+      ) => {
+        try {
+          const campaign = await AdsCampaign.findById(id);
+          if (!campaign) {
+            return {
+              success: false,
+              message: "An error occurred while rejecting the ads campaign",
+            };
+          }
+          campaign.status = "REJECTED";
+          campaign.rejectionReason = rejectionReason;
+          await campaign.save();
+          return {
+            success: true,
+            message: "Successfully rejected ads campaign",
+            campaign,
+          };
+        } catch (error) {
+          console.log("Error rejecting ads campaign", error);
+          return {
+            success: false,
+            message: "Failed to reject ads campaign",
           };
         }
       }
