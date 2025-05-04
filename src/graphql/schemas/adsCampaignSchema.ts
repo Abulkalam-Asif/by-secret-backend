@@ -8,6 +8,7 @@ export const adsCampaignTypeDefs = `
     endDate: String!
     budget: String!
     status: String!
+    rejectionReason: String
   }
 
   type PendingAdsCampaign {

@@ -22,7 +22,17 @@ export const adsCampaignResolver = {
         }
         try {
           const campaigns = await AdsCampaign.find({ advertiser });
-          return campaigns;
+          return campaigns.map((campaign: any) => ({
+            id: campaign._id,
+            name: campaign.name,
+            adImage: campaign.adImage,
+            action: campaign.action,
+            startDate: campaign.startDate,
+            endDate: campaign.endDate,
+            budget: campaign.budget,
+            status: campaign.status,
+            rejectionReason: campaign.rejectionReason,
+          }));
         } catch (error) {
           console.log("Error getting ads campaigns", error);
           return null;
