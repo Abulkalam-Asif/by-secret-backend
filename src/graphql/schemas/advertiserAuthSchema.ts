@@ -2,6 +2,7 @@ import { gql } from "apollo-server-express";
 
 export const advertiserAuthTypeDefs = gql`
   type Advertiser {
+    id: ID!
     companyName: String!
     fullContactName: String!
     email: String!
@@ -9,6 +10,16 @@ export const advertiserAuthTypeDefs = gql`
     phone: String
     address: String
     logo: String
+  }
+
+  type AdvertiserData {
+    id: ID!
+    companyName: String!
+    logo: String
+    fullContactName: String!
+    phone: String
+    email: String!
+    address: String
   }
 
   type MutationResponse {
@@ -23,6 +34,7 @@ export const advertiserAuthTypeDefs = gql`
   type Query {
     authorizeAdvertiser: AdvertiserAuth
     getAdvertisersCount: Int
+    getAdvertisers: [AdvertiserData!]!
   }
 
   type Mutation {

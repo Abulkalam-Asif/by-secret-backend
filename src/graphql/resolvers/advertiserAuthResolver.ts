@@ -63,6 +63,26 @@ export const advertiserAuthResolver = {
         return 0;
       }
     }),
+    getAdvertisers: requireAdmin(async (_: any, __: any) => {
+      try {
+        const advertisers = await Advertiser.find({});
+        if (!advertisers) {
+          return [];
+        }
+        return advertisers.map((advertiser) => ({
+          id: advertiser._id,
+          companyName: advertiser.companyName,
+          fullContactName: advertiser.fullContactName,
+          email: advertiser.email,
+          phone: advertiser.phone,
+          address: advertiser.address,
+          logo: advertiser.logo,
+        }));
+      } catch (error) {
+        console.log("Error getting advertisers", error);
+        return [];
+      }
+    }),
   },
   Mutation: {
     loginAdvertiser: async (
