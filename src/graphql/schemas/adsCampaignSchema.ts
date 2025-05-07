@@ -59,6 +59,7 @@ export const adsCampaignTypeDefs = `
   type Query {
     getAdsCampaigns: [AdsCampaign!]!
     getAdsCampaignsCount: AdsCampaignCount!
+    getAllAdsCampaignsCount: AdsCampaignCount!
     getPendingAdsCampaigns: [PendingAdsCampaign!]!
     getApprovedAdsCampaigns: [ApprovedAdsCampaign!]!
     getRejectedAdsCampaigns: [RejectedAdsCampaign!]!

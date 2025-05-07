@@ -38,6 +38,7 @@ export const adsCampaignResolver = {
         }
       }
     ),
+    // Get ads campaigns count for the advertiser
     getAdsCampaignsCount: requireAdvertiser(
       async (_: any, __: any, context: AuthContext) => {
         const advertiser = context.user?._id;
@@ -67,6 +68,30 @@ export const adsCampaignResolver = {
           };
         } catch (error) {
           console.log("Error getting ads campaign count", error);
+          return null;
+        }
+      }
+    ),
+    // Get count for all the ads campaigns in the system
+    getAllAdsCampaignsCount: requireAdmin(
+      async (_: any, __: any, context: AuthContext) => {
+        try {
+          const pendingCount = await AdsCampaign.countDocuments({
+            status: "PENDING",
+          });
+          const approvedCount = await AdsCampaign.countDocuments({
+            status: "APPROVED",
+          });
+          const rejectedCount = await AdsCampaign.countDocuments({
+            status: "REJECTED",
+          });
+          return {
+            pending: pendingCount,
+            approved: approvedCount,
+            rejected: rejectedCount,
+          };
+        } catch (error) {
+          console.log("Error getting all ads campaign count", error);
           return null;
         }
       }
