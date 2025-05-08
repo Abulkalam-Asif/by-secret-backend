@@ -43,6 +43,7 @@ export const adsCampaignTypeDefs = `
     budget: String!
     media: String!
     action: String!
+    rejectionReason: String!
   }
 
   type AdsCampaignCount {

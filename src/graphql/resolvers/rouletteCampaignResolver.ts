@@ -3,14 +3,12 @@ import {
   requireAdmin,
   requireAdvertiser,
 } from "../../middleware/resolverMiddleware";
-import { AdsCampaign } from "../../models/AdsCampaign";
-import { deleteImageFromCloudinary } from "../../utils/deleteImageFromCloudinary";
-import { uploadImageToCloudinary } from "../../utils/uploadImageToCloudinary";
-import { createAdsCampaignValidation } from "../../validations/adsCampaignValidations";
+import { RouletteCampaign } from "../../models/RouletteCampaign";
+import { createRouletteCampaignValidation } from "../../validations/rouletteCampaignValidations";
 
-export const adsCampaignResolver = {
+export const rouletteCampaignResolver = {
   Query: {
-    getAdsCampaigns: requireAdvertiser(
+    getRouletteCampaigns: requireAdvertiser(
       async (_: any, __: any, context: AuthContext) => {
         const advertiser = context.user?._id;
         if (!advertiser) {
@@ -20,26 +18,31 @@ export const adsCampaignResolver = {
           };
         }
         try {
-          const campaigns = await AdsCampaign.find({ advertiser });
+          const campaigns = await RouletteCampaign.find({ advertiser });
           return campaigns.map((campaign: any) => ({
             id: campaign._id,
             name: campaign.name,
-            adImage: campaign.adImage,
-            action: campaign.action,
             startDate: campaign.startDate,
             endDate: campaign.endDate,
+            mainPrize: campaign.mainPrize,
+            mainPrizeAmount: campaign.mainPrizeAmount,
+            secPrize1: campaign.secPrize1,
+            amount1: campaign.amount1,
+            secPrize2: campaign.secPrize2,
+            amount2: campaign.amount2,
+            secPrize3: campaign.secPrize3,
+            amount3: campaign.amount3,
             budget: campaign.budget,
             status: campaign.status,
             rejectionReason: campaign.rejectionReason,
           }));
         } catch (error) {
-          console.log("Error getting ads campaigns", error);
+          console.log("Error getting roulette campaigns", error);
           return null;
         }
       }
     ),
-    // Get ads campaigns count for the advertiser
-    getAdsCampaignsCount: requireAdvertiser(
+    getRouletteCampaignsCount: requireAdvertiser(
       async (_: any, __: any, context: AuthContext) => {
         const advertiser = context.user?._id;
         if (!advertiser) {
@@ -49,15 +52,15 @@ export const adsCampaignResolver = {
           };
         }
         try {
-          const pendingCount = await AdsCampaign.countDocuments({
+          const pendingCount = await RouletteCampaign.countDocuments({
             advertiser,
             status: "PENDING",
           });
-          const approvedCount = await AdsCampaign.countDocuments({
+          const approvedCount = await RouletteCampaign.countDocuments({
             advertiser,
             status: "APPROVED",
           });
-          const rejectedCount = await AdsCampaign.countDocuments({
+          const rejectedCount = await RouletteCampaign.countDocuments({
             advertiser,
             status: "REJECTED",
           });
@@ -67,22 +70,21 @@ export const adsCampaignResolver = {
             rejected: rejectedCount,
           };
         } catch (error) {
-          console.log("Error getting ads campaign count", error);
+          console.log("Error getting roulette campaign count", error);
           return null;
         }
       }
     ),
-    // Get count for all the ads campaigns in the system
-    getAllAdsCampaignsCount: requireAdmin(
+    getAllRouletteCampaignsCount: requireAdmin(
       async (_: any, __: any, context: AuthContext) => {
         try {
-          const pendingCount = await AdsCampaign.countDocuments({
+          const pendingCount = await RouletteCampaign.countDocuments({
             status: "PENDING",
           });
-          const approvedCount = await AdsCampaign.countDocuments({
+          const approvedCount = await RouletteCampaign.countDocuments({
             status: "APPROVED",
           });
-          const rejectedCount = await AdsCampaign.countDocuments({
+          const rejectedCount = await RouletteCampaign.countDocuments({
             status: "REJECTED",
           });
           return {
@@ -91,15 +93,15 @@ export const adsCampaignResolver = {
             rejected: rejectedCount,
           };
         } catch (error) {
-          console.log("Error getting all ads campaign count", error);
+          console.log("Error getting all roulette campaign count", error);
           return null;
         }
       }
     ),
-    getPendingAdsCampaigns: requireAdmin(
+    getPendingRouletteCampaigns: requireAdmin(
       async (_: any, __: any, context: AuthContext) => {
         try {
-          const campaigns = await AdsCampaign.find({
+          const campaigns = await RouletteCampaign.find({
             status: "PENDING",
           }).populate("advertiser", "companyName");
           return campaigns.map((campaign: any) => ({
@@ -112,21 +114,26 @@ export const adsCampaignResolver = {
                 (1000 * 3600 * 24)
             ),
             startDate: campaign.startDate,
+            mainPrize: campaign.mainPrize,
+            mainPrizeAmount: campaign.mainPrizeAmount,
+            secPrize1: campaign.secPrize1,
+            amount1: campaign.amount1,
+            secPrize2: campaign.secPrize2,
+            amount2: campaign.amount2,
+            secPrize3: campaign.secPrize3,
+            amount3: campaign.amount3,
             budget: campaign.budget,
-            media: campaign.adImage,
-            action: campaign.action,
           }));
         } catch (error) {
-          console.log("Error getting pending ads campaigns", error);
+          console.log("Error getting pending roulette campaigns", error);
           return null;
         }
       }
     ),
-    // Only admins can get all approved ads campaigns
-    getApprovedAdsCampaigns: requireAdmin(
+    getApprovedRouletteCampaigns: requireAdmin(
       async (_: any, __: any, context: AuthContext) => {
         try {
-          const campaigns = await AdsCampaign.find({
+          const campaigns = await RouletteCampaign.find({
             status: "APPROVED",
           }).populate("advertiser", "companyName");
           return campaigns.map((campaign: any) => ({
@@ -136,19 +143,26 @@ export const adsCampaignResolver = {
             dateCreated: campaign.createdAt,
             startDate: campaign.startDate,
             endDate: campaign.endDate,
+            mainPrize: campaign.mainPrize,
+            mainPrizeAmount: campaign.mainPrizeAmount,
+            secPrize1: campaign.secPrize1,
+            amount1: campaign.amount1,
+            secPrize2: campaign.secPrize2,
+            amount2: campaign.amount2,
+            secPrize3: campaign.secPrize3,
+            amount3: campaign.amount3,
             budget: campaign.budget,
           }));
         } catch (error) {
-          console.log("Error getting approved ads campaigns", error);
+          console.log("Error getting approved roulette campaigns", error);
           return null;
         }
       }
     ),
-    // Only admins can get all rejected ads campaigns
-    getRejectedAdsCampaigns: requireAdmin(
+    getRejectedRouletteCampaigns: requireAdmin(
       async (_: any, __: any, context: AuthContext) => {
         try {
-          const campaigns = await AdsCampaign.find({
+          const campaigns = await RouletteCampaign.find({
             status: "REJECTED",
           }).populate("advertiser", "companyName");
           return campaigns.map((campaign: any) => ({
@@ -161,24 +175,42 @@ export const adsCampaignResolver = {
                 (1000 * 3600 * 24)
             ),
             startDate: campaign.startDate,
+            mainPrize: campaign.mainPrize,
+            mainPrizeAmount: campaign.mainPrizeAmount,
+            secPrize1: campaign.secPrize1,
+            amount1: campaign.amount1,
+            secPrize2: campaign.secPrize2,
+            amount2: campaign.amount2,
+            secPrize3: campaign.secPrize3,
+            amount3: campaign.amount3,
             budget: campaign.budget,
-            media: campaign.adImage,
-            action: campaign.action,
             rejectionReason: campaign.rejectionReason,
           }));
         } catch (error) {
-          console.log("Error getting rejected ads campaigns", error);
+          console.log("Error getting rejected roulette campaigns", error);
           return null;
         }
       }
     ),
   },
   Mutation: {
-    // Only advertisers can create ads campaigns
-    createAdsCampaign: requireAdvertiser(
+    createRouletteCampaign: requireAdvertiser(
       async (
         _: any,
-        { name, adImage, action, startDate, endDate, budget }: any,
+        {
+          name,
+          startDate,
+          endDate,
+          mainPrize,
+          mainPrizeAmount,
+          secPrize1,
+          amount1,
+          secPrize2,
+          amount2,
+          secPrize3,
+          amount3,
+          budget,
+        }: any,
         context: AuthContext
       ) => {
         const advertiser = context.user?._id;
@@ -188,12 +220,12 @@ export const adsCampaignResolver = {
             message: "User not authenticated",
           };
         }
-        const validationResponse = createAdsCampaignValidation(
+        const validationResponse = createRouletteCampaignValidation(
           name,
-          adImage,
-          action,
           startDate,
           endDate,
+          mainPrize,
+          mainPrizeAmount,
           budget
         );
         if (validationResponse) {
@@ -204,38 +236,54 @@ export const adsCampaignResolver = {
         }
 
         try {
-          const adImageUrl = await uploadImageToCloudinary(
-            adImage,
-            "by-secret/ads-campaigns"
-          );
-          const newCampaign = new AdsCampaign({
+          const newCampaign = new RouletteCampaign({
             advertiser,
             name,
-            adImage: adImageUrl,
-            action,
             startDate,
             endDate,
+            mainPrize,
+            mainPrizeAmount,
+            secPrize1,
+            amount1,
+            secPrize2,
+            amount2,
+            secPrize3,
+            amount3,
             budget,
           });
           await newCampaign.save();
           return {
             success: true,
-            message: "Successfully created ads campaign",
+            message: "Successfully created roulette campaign",
             campaign: newCampaign,
           };
         } catch (error) {
-          console.log("Error creating ads campaign", error);
+          console.log("Error creating roulette campaign", error);
           return {
             success: false,
-            message: "Failed to create ads campaign",
+            message: "Failed to create roulette campaign",
           };
         }
       }
     ),
-    updateAdsCampaign: requireAdvertiser(
+    updateRouletteCampaign: requireAdvertiser(
       async (
         _: any,
-        { id, name, adImage, action, startDate, endDate, budget }: any,
+        {
+          id,
+          name,
+          startDate,
+          endDate,
+          mainPrize,
+          mainPrizeAmount,
+          secPrize1,
+          amount1,
+          secPrize2,
+          amount2,
+          secPrize3,
+          amount3,
+          budget,
+        }: any,
         context: AuthContext
       ) => {
         const advertiser = context.user?._id;
@@ -245,12 +293,12 @@ export const adsCampaignResolver = {
             message: "User not authenticated",
           };
         }
-        const validationResponse = createAdsCampaignValidation(
+        const validationResponse = createRouletteCampaignValidation(
           name,
-          adImage,
-          action,
           startDate,
           endDate,
+          mainPrize,
+          mainPrizeAmount,
           budget
         );
         if (validationResponse) {
@@ -260,91 +308,80 @@ export const adsCampaignResolver = {
           };
         }
         try {
-          const campaign = await AdsCampaign.findById(id);
+          const campaign = await RouletteCampaign.findById(id);
           if (!campaign) {
             return {
               success: false,
-              message: "An error occurred while updating the ads campaign",
+              message: "An error occurred while updating the roulette campaign",
             };
           }
-          // If the adImage is a base64 string, delete the previous image from Cloudinary and upload the new onej
-          if (adImage.startsWith("data:image/")) {
-            const previousAdImage = campaign.adImage as string;
-            const response = await deleteImageFromCloudinary(
-              previousAdImage,
-              "by-secret/ads-campaigns"
-            );
-            if (response) {
-              const adImageUrl = await uploadImageToCloudinary(
-                adImage,
-                "by-secret/ads-campaigns"
-              );
-              campaign.adImage = adImageUrl;
-            } else {
-              return {
-                success: false,
-                message: "An error occurred while updating the ads campaign",
-              };
-            }
-          }
           campaign.name = name;
-          campaign.action = action;
           campaign.startDate = startDate;
           campaign.endDate = endDate;
+          campaign.mainPrize = mainPrize;
+          campaign.mainPrizeAmount = mainPrizeAmount;
+          campaign.secPrize1 = secPrize1;
+          campaign.amount1 = amount1;
+          campaign.secPrize2 = secPrize2;
+          campaign.amount2 = amount2;
+          campaign.secPrize3 = secPrize3;
+          campaign.amount3 = amount3;
           campaign.budget = budget;
           await campaign.save();
           return {
             success: true,
-            message: "Successfully updated ads campaign",
+            message: "Successfully updated roulette campaign",
             campaign,
           };
         } catch (error) {
-          console.log("Error updating ads campaign", error);
+          console.log("Error updating roulette campaign", error);
           return {
             success: false,
-            message: "Failed to update ads campaign",
+            message: "Failed to update roulette campaign",
           };
         }
       }
     ),
-    approveAdsCampaign: requireAdmin(
+    approveRouletteCampaign: requireAdmin(
       async (_: any, { id }: { id: string }, context: AuthContext) => {
         try {
-          const campaign = await AdsCampaign.findById(id);
+          const campaign = await RouletteCampaign.findById(id);
           if (!campaign) {
             return {
               success: false,
-              message: "An error occurred while approving the ads campaign",
+              message:
+                "An error occurred while approving the roulette campaign",
             };
           }
           campaign.status = "APPROVED";
           await campaign.save();
           return {
             success: true,
-            message: "Successfully approved ads campaign",
+            message: "Successfully approved roulette campaign",
             campaign,
           };
         } catch (error) {
-          console.log("Error approving ads campaign", error);
+          console.log("Error approving roulette campaign", error);
           return {
             success: false,
-            message: "Failed to approve ads campaign",
+            message: "Failed to approve roulette campaign",
           };
         }
       }
     ),
-    rejectAdsCampaign: requireAdmin(
+    rejectRouletteCampaign: requireAdmin(
       async (
         _: any,
         { id, rejectionReason }: { id: string; rejectionReason: string },
         context: AuthContext
       ) => {
         try {
-          const campaign = await AdsCampaign.findById(id);
+          const campaign = await RouletteCampaign.findById(id);
           if (!campaign) {
             return {
               success: false,
-              message: "An error occurred while rejecting the ads campaign",
+              message:
+                "An error occurred while rejecting the roulette campaign",
             };
           }
           campaign.status = "REJECTED";
@@ -352,14 +389,14 @@ export const adsCampaignResolver = {
           await campaign.save();
           return {
             success: true,
-            message: "Successfully rejected ads campaign",
+            message: "Successfully rejected roulette campaign",
             campaign,
           };
         } catch (error) {
-          console.log("Error rejecting ads campaign", error);
+          console.log("Error rejecting roulette campaign", error);
           return {
             success: false,
-            message: "Failed to reject ads campaign",
+            message: "Failed to reject roulette campaign",
           };
         }
       }
