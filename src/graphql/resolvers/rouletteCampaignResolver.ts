@@ -42,62 +42,7 @@ export const rouletteCampaignResolver = {
         }
       }
     ),
-    getRouletteCampaignsCount: requireAdvertiser(
-      async (_: any, __: any, context: AuthContext) => {
-        const advertiser = context.user?._id;
-        if (!advertiser) {
-          return {
-            success: false,
-            message: "User not authenticated",
-          };
-        }
-        try {
-          const pendingCount = await RouletteCampaign.countDocuments({
-            advertiser,
-            status: "PENDING",
-          });
-          const approvedCount = await RouletteCampaign.countDocuments({
-            advertiser,
-            status: "APPROVED",
-          });
-          const rejectedCount = await RouletteCampaign.countDocuments({
-            advertiser,
-            status: "REJECTED",
-          });
-          return {
-            pending: pendingCount,
-            approved: approvedCount,
-            rejected: rejectedCount,
-          };
-        } catch (error) {
-          console.log("Error getting roulette campaign count", error);
-          return null;
-        }
-      }
-    ),
-    getAllRouletteCampaignsCount: requireAdmin(
-      async (_: any, __: any, context: AuthContext) => {
-        try {
-          const pendingCount = await RouletteCampaign.countDocuments({
-            status: "PENDING",
-          });
-          const approvedCount = await RouletteCampaign.countDocuments({
-            status: "APPROVED",
-          });
-          const rejectedCount = await RouletteCampaign.countDocuments({
-            status: "REJECTED",
-          });
-          return {
-            pending: pendingCount,
-            approved: approvedCount,
-            rejected: rejectedCount,
-          };
-        } catch (error) {
-          console.log("Error getting all roulette campaign count", error);
-          return null;
-        }
-      }
-    ),
+
     getPendingRouletteCampaigns: requireAdmin(
       async (_: any, __: any, context: AuthContext) => {
         try {

@@ -72,16 +72,8 @@ export const rouletteCampaignTypeDefs = `
     rejectionReason: String!
   }
 
-  type RouletteCampaignCount {
-    pending: Int!
-    approved: Int!
-    rejected: Int!
-  }
-
   type Query {
     getRouletteCampaigns: [RouletteCampaign!]!
-    getRouletteCampaignsCount: RouletteCampaignCount!
-    getAllRouletteCampaignsCount: RouletteCampaignCount!
     getPendingRouletteCampaigns: [PendingRouletteCampaign!]!
     getApprovedRouletteCampaigns: [ApprovedRouletteCampaign!]!
     getRejectedRouletteCampaigns: [RejectedRouletteCampaign!]!

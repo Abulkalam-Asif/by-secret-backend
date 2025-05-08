@@ -6,6 +6,7 @@ import { wikiTypeDefs } from "./wikiSchema";
 import { advertiserAuthTypeDefs } from "./advertiserAuthSchema";
 import { adsCampaignTypeDefs } from "./adsCampaignSchema";
 import { rouletteCampaignTypeDefs } from "./rouletteCampaignSchema";
+import { campaignsCountTypeDefs } from "./campaignsCountSchema";
 
 const typeDefs = [
   adminAuthTypeDefs,
@@ -16,6 +17,7 @@ const typeDefs = [
   advertiserAuthTypeDefs,
   adsCampaignTypeDefs,
   rouletteCampaignTypeDefs,
+  campaignsCountTypeDefs,
 ];
 
 export default typeDefs;
