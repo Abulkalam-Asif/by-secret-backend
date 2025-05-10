@@ -120,7 +120,7 @@ export const advertiserSettingsResolver = {
           if (!PASSWORD_REGEX.test(newPassword)) {
             return {
               success: false,
-              message: "New password does not meet the requirements",
+              message: "Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character",
             };
           }
 
