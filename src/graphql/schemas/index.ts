@@ -7,6 +7,7 @@ import { advertiserAuthTypeDefs } from "./advertiserAuthSchema";
 import { adsCampaignTypeDefs } from "./adsCampaignSchema";
 import { rouletteCampaignTypeDefs } from "./rouletteCampaignSchema";
 import { campaignsCountTypeDefs } from "./campaignsCountSchema";
+import { advertiserSettingsTypeDefs } from "./advertiserSettingsSchema";
 
 const typeDefs = [
   adminAuthTypeDefs,
@@ -18,6 +19,7 @@ const typeDefs = [
   adsCampaignTypeDefs,
   rouletteCampaignTypeDefs,
   campaignsCountTypeDefs,
+  advertiserSettingsTypeDefs,
 ];
 
 export default typeDefs;
