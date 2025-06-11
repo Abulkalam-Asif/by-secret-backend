@@ -4,6 +4,7 @@ import {
   requireAdvertiser,
 } from "../../middleware/resolverMiddleware";
 import { AdsCampaign } from "../../models/AdsCampaign";
+import { Invoice } from "../../models/Invoice";
 import { RouletteCampaign } from "../../models/RouletteCampaign";
 import { deleteImageFromCloudinary } from "../../utils/deleteImageFromCloudinary";
 import { uploadImageToCloudinary } from "../../utils/uploadImageToCloudinary";
@@ -260,6 +261,19 @@ export const adsCampaignResolver = {
               message: "An error occurred while approving the ads campaign",
             };
           }
+
+          // Generate an invoice for the campaign
+          const invoice = new Invoice({
+            advertiser: campaign.advertiser,
+            campaign: campaign._id,
+            campaignType: "AdsCampaign",
+            date: new Date(),
+            amount: campaign.budget,
+          });
+
+          await invoice.save();
+
+          // Update the campaign status to APPROVED
           campaign.status = "APPROVED";
           await campaign.save();
           return {

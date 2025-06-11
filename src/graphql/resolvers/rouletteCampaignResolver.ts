@@ -3,6 +3,7 @@ import {
   requireAdmin,
   requireAdvertiser,
 } from "../../middleware/resolverMiddleware";
+import { Invoice } from "../../models/Invoice";
 import { RouletteCampaign } from "../../models/RouletteCampaign";
 import { createRouletteCampaignValidation } from "../../validations/rouletteCampaignValidations";
 
@@ -298,8 +299,20 @@ export const rouletteCampaignResolver = {
                 "An error occurred while approving the roulette campaign",
             };
           }
+          // Generate an invoice for the campaign
+          const invoice = new Invoice({
+            advertiser: campaign.advertiser,
+            campaign: campaign._id,
+            campaignType: "RouletteCampaign",
+            date: new Date(),
+            amount: campaign.budget,
+          });
+          await invoice.save();
+
+          // Update the campaign status to APPROVED
           campaign.status = "APPROVED";
           await campaign.save();
+
           return {
             success: true,
             message: "Successfully approved roulette campaign",

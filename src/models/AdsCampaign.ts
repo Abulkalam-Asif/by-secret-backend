@@ -28,4 +28,12 @@ const AdsCampaignSchema: Schema = new Schema(
   }
 );
 
+// Virtual field to get invoices for this campaign
+AdsCampaignSchema.virtual("invoices", {
+  ref: "Invoice",
+  localField: "_id",
+  foreignField: "campaign",
+  match: { campaignType: "AdsCampaign" },
+});
+
 export const AdsCampaign = mongoose.model("AdsCampaign", AdsCampaignSchema);

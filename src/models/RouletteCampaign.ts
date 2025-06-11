@@ -34,4 +34,15 @@ const RouletteCampaignSchema: Schema = new Schema(
   }
 );
 
-export const RouletteCampaign = mongoose.model("RouletteCampaign", RouletteCampaignSchema); 
+// Virtual field to get invoices for this campaign
+RouletteCampaignSchema.virtual("invoices", {
+  ref: "Invoice",
+  localField: "_id",
+  foreignField: "campaign",
+  match: { campaignType: "RouletteCampaign" },
+});
+
+export const RouletteCampaign = mongoose.model(
+  "RouletteCampaign",
+  RouletteCampaignSchema
+);

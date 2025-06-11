@@ -8,6 +8,7 @@ import { rouletteCampaignResolver } from "./rouletteCampaignResolver";
 import { rouletteSettingsResolver } from "./rouletteSettingsResolver";
 import { wikiResolver } from "./wikiResolver";
 import { advertiserSettingsResolver } from "./advertiserSettingsResolver";
+import { invoiceResolver } from "./invoiceResolver";
 
 const resolvers = {
   Query: {
@@ -21,6 +22,7 @@ const resolvers = {
     ...rouletteCampaignResolver.Query,
     ...campaignsCountResolver.Query,
     ...advertiserSettingsResolver.Query,
+    ...invoiceResolver.Query,
   },
   Mutation: {
     ...adminAuthResolver.Mutation,
@@ -33,6 +35,7 @@ const resolvers = {
     ...rouletteCampaignResolver.Mutation,
     ...campaignsCountResolver.Mutation,
     ...advertiserSettingsResolver.Mutation,
+    ...invoiceResolver.Mutation,
   },
 };
 
