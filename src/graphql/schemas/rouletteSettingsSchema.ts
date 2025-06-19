@@ -5,8 +5,7 @@ export const rouletteSettingsTypeDefs = gql`
     id: ID!
     costPerView: Float!
     costPerClick: Float!
-    rewardPerView: Float!
-    rewardPerClick: Float!
+    neoDollarsCost: Float!
   }
 
   type MutationResponse {
@@ -22,8 +21,7 @@ export const rouletteSettingsTypeDefs = gql`
     updateRouletteSettings(
       costPerView: Float
       costPerClick: Float
-      rewardPerView: Float
-      rewardPerClick: Float
+      neoDollarsCost: Float
     ): MutationResponse
   }
 `;

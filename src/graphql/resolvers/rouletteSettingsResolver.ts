@@ -20,13 +20,11 @@ export const rouletteSettingsResolver = {
         {
           costPerView,
           costPerClick,
-          rewardPerView,
-          rewardPerClick,
+          neoDollarsCost,
         }: {
           costPerView: number;
           costPerClick: number;
-          rewardPerView: number;
-          rewardPerClick: number;
+          neoDollarsCost: number;
         }
       ) => {
         try {
@@ -35,14 +33,12 @@ export const rouletteSettingsResolver = {
             await RouletteSettings.create({
               costPerView,
               costPerClick,
-              rewardPerView,
-              rewardPerClick,
+              neoDollarsCost,
             });
           } else {
             rouletteSettings.costPerView = costPerView;
             rouletteSettings.costPerClick = costPerClick;
-            rouletteSettings.rewardPerView = rewardPerView;
-            rouletteSettings.rewardPerClick = rewardPerClick;
+            rouletteSettings.neoDollarsCost = neoDollarsCost;
             await rouletteSettings.save();
           }
           return {

@@ -9,11 +9,7 @@ const RouletteSettingSchema: Schema = new Schema({
     type: Number,
     required: true,
   },
-  rewardPerView: {
-    type: Number,
-    required: true,
-  },
-  rewardPerClick: {
+  neoDollarsCost: {
     type: Number,
     required: true,
   },
