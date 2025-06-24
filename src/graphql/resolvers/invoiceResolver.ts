@@ -5,9 +5,7 @@ import {
 } from "../../middleware/resolverMiddleware";
 import { Invoice } from "../../models/Invoice";
 import Stripe from "stripe";
-
-// Initialize Stripe with the secret test key
-const stripe = new Stripe(process.env.STRIPE_TEST_SECRET_KEY || "");
+import { getStripeKeys } from "../../utils/getStripeKeys";
 
 export const invoiceResolver = {
   Query: {
@@ -100,6 +98,18 @@ export const invoiceResolver = {
           } // Process payment with Stripe
           const amount = invoice.amount as number;
           const amountInCents = Math.round(amount * 100); // Convert to cents
+
+          // Initialize Stripe with the secret key from environment variables
+          const stripeKeys = await getStripeKeys();
+          if (!stripeKeys) {
+            console.error("Stripe keys not found in settings");
+            return {
+              success: false,
+              message: "An error occurred. Please try again later.",
+            };
+          }
+
+          const stripe = new Stripe(stripeKeys.stripeTestSecretKey);
 
           try {
             // Create a payment intent

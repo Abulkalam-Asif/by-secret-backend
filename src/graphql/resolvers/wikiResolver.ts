@@ -5,7 +5,7 @@ import { AuthContext } from "../../middleware/authMiddleware";
 export const wikiResolver = {
   Query: {
     // Public query - anyone can view the wiki
-    getWiki: async (_: any, __: any, context: AuthContext) => {
+    getWiki: async (_: any, __: any) => {
       try {
         const wiki = await Wiki.findOne();
         return wiki;

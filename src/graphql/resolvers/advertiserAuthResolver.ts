@@ -1,5 +1,6 @@
 import { Advertiser } from "../../models/Advertiser";
-import transporter from "../../config/nodemailer";
+import getTransporter from "../../config/nodemailer";
+import { getSMTPSettings } from "../../utils/getSMTPSettings";
 import * as jose from "jose";
 import cloudinary from "../../config/cloudinary";
 import bcryptjs from "bcryptjs";
@@ -215,43 +216,122 @@ export const advertiserAuthResolver = {
       { companyName, fullContactName, email }: any
     ) => {
       try {
+        // Validate input parameters
+        if (!companyName || !fullContactName || !email) {
+          return {
+            success: false,
+            message: "Company name, full contact name, and email are required",
+          };
+        }
+
         // Check if advertiser exists
         const advertiser = await Advertiser.findOne({ email });
         if (advertiser) {
           // If advertiser exists but has not completed step 3
           if (!advertiser.password) {
-            advertiser.companyName = companyName;
-            advertiser.fullContactName = fullContactName;
-            await advertiser.save();
-            await sendConfirmationEmail(email);
-            return {
-              success: true,
-              message: "Step 1 completed",
-            };
+            try {
+              advertiser.companyName = companyName;
+              advertiser.fullContactName = fullContactName;
+              await advertiser.save();
+
+              console.log(
+                "Existing advertiser updated. Sending confirmation email"
+              );
+              await sendConfirmationEmail(email);
+              console.log("Email sent successfully");
+
+              return {
+                success: true,
+                message:
+                  "Registration details updated. Please check your email for verification link.",
+              };
+            } catch (emailError) {
+              console.error("Error sending confirmation email:", emailError);
+              return {
+                success: false,
+                message:
+                  "Registration updated but failed to send verification email. Please contact support.",
+              };
+            }
           }
           // If advertiser exists and has completed step 3
           return {
             success: false,
-            message: "Advertiser with this email already exists",
+            message:
+              "An account with this email already exists. Please login instead.",
           };
         }
 
-        // Create advertiser
-        await Advertiser.create({
-          companyName,
-          fullContactName,
-          email,
-        });
+        // Create new advertiser
+        try {
+          await Advertiser.create({
+            companyName,
+            fullContactName,
+            email,
+          });
+          console.log("New advertiser created. Sending confirmation email");
+        } catch (createError) {
+          console.error("Error creating advertiser:", createError);
+          return {
+            success: false,
+            message: "Failed to create advertiser account. Please try again.",
+          };
+        }
 
-        console.log("Advertiser created. Sending confirmation email");
         // Send confirmation email
-        await sendConfirmationEmail(email);
-        console.log("Email sent");
+        try {
+          await sendConfirmationEmail(email);
+          console.log("Confirmation email sent successfully");
 
-        return { success: true, message: "Step 1 completed" };
+          return {
+            success: true,
+            message:
+              "Registration successful! Please check your email for verification link.",
+          };
+        } catch (emailError) {
+          console.error("Error sending confirmation email:", emailError);
+
+          // Clean up created advertiser if email failed
+          try {
+            await Advertiser.deleteOne({ email, password: { $exists: false } });
+            console.log("Cleaned up advertiser record due to email failure");
+          } catch (cleanupError) {
+            console.error("Error cleaning up advertiser record:", cleanupError);
+          }
+
+          return {
+            success: false,
+            message:
+              "Account created but failed to send verification email. Please contact support or try again.",
+          };
+        }
       } catch (error) {
-        console.log("Error submitting advertiser step 1", error);
-        return { success: false, message: "Error registering advertiser" };
+        console.error("Error in submitAdvertiserStep1:", error);
+
+        // Provide more specific error messages based on error type
+        if (error instanceof Error) {
+          if (error.message.includes("email")) {
+            return {
+              success: false,
+              message: "Invalid email format. Please check and try again.",
+            };
+          }
+          if (
+            error.message.includes("duplicate") ||
+            error.message.includes("unique")
+          ) {
+            return {
+              success: false,
+              message: "An account with this email already exists.",
+            };
+          }
+        }
+
+        return {
+          success: false,
+          message:
+            "An unexpected error occurred during registration. Please try again.",
+        };
       }
     },
     submitAdvertiserStep3: async (
@@ -322,26 +402,81 @@ export const advertiserAuthResolver = {
 };
 
 const sendConfirmationEmail = async (email: string) => {
-  const secret = process.env.JWT_SECRET;
-  const frontendUrl = process.env.FRONTEND_URL;
-  if (!secret) throw new Error("JWT secret is not defined");
-  const token = new jose.SignJWT({
-    email,
-  })
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("1h");
+  try {
+    const secret = process.env.JWT_SECRET;
+    const frontendUrl = process.env.FRONTEND_URL;
 
-  const signedToken = await token.sign(new TextEncoder().encode(secret));
+    if (!secret) {
+      throw new Error("JWT secret is not defined");
+    }
 
-  const link = `${frontendUrl}/advertiser-register?step=3&token=${signedToken}`;
-  console.log("For email: ", signedToken, link, process.env.NODEMAILER_USER);
-  await transporter.sendMail({
-    from: process.env.NODEMAILER_USER,
-    to: email,
-    subject: "Advertiser Registration",
-    text: `Click on the link to confirm your email: ${link}`,
-  });
+    if (!frontendUrl) {
+      throw new Error("Frontend URL is not defined");
+    } // Get email sender information and create transporter
+    const [smtpSettings, transporter] = await Promise.all([
+      getSMTPSettings(),
+      getTransporter(),
+    ]);
+    if (!smtpSettings) {
+      throw new Error("Error in SMTP settings");
+    }
+    if (!transporter) {
+      throw new Error("Error creating email transporter");
+    }
+
+    // Create JWT token
+    const token = new jose.SignJWT({
+      email,
+    })
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt()
+      .setExpirationTime("1h");
+
+    const signedToken = await token.sign(new TextEncoder().encode(secret));
+
+    const link = `${frontendUrl}/advertiser-register?step=3&token=${signedToken}`;
+
+    console.log("Sending confirmation email to:", email); // Send email with improved HTML template
+    await transporter.sendMail({
+      from: `${smtpSettings.fromName} <${smtpSettings.fromEmail}>`,
+      to: email,
+      subject: "Advertiser Registration - Email Verification",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #333; text-align: center;">Welcome to Epic Platforms Media!</h2>
+          <p style="color: #666; font-size: 16px;">Thank you for registering as an advertiser. Please click the button below to complete your registration:</p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${link}" style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Complete Registration</a>
+          </div>
+          
+          <p style="color: #666; font-size: 14px;">If the button doesn't work, you can copy and paste this link into your browser:</p>
+          <p style="color: #007bff; word-break: break-all; font-size: 14px;">${link}</p>
+          
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+            <p style="color: #999; font-size: 12px;">
+              <strong>Important:</strong> This link will expire in 1 hour for security reasons.<br>
+              If you didn't request this registration, please ignore this email.
+            </p>
+          </div>
+        </div>
+      `,
+      text: `Welcome to BySecret Platform! Click on the link to complete your registration: ${link}. This link will expire in 1 hour. If you didn't request this registration, please ignore this email.`,
+    });
+
+    console.log("Confirmation email sent successfully to:", email);
+  } catch (error) {
+    console.error("Error sending confirmation email:", error);
+
+    // Re-throw with more specific error message
+    if (error instanceof Error) {
+      throw new Error(`Failed to send confirmation email: ${error.message}`);
+    } else {
+      throw new Error(
+        "Failed to send confirmation email due to an unknown error"
+      );
+    }
+  }
 };
 
 const verifyToken = async (token: string) => {

@@ -1,22 +1,26 @@
 import nodemailer from "nodemailer";
+import { getSMTPSettings } from "../utils/getSMTPSettings";
 
-if (
-  !process.env.NODEMAILER_HOST ||
-  !process.env.NODEMAILER_PORT ||
-  !process.env.NODEMAILER_USER ||
-  !process.env.NODEMAILER_PASS
-) {
-  throw new Error("Nodemailer environment variables are not defined");
-}
+const getTransporter = async () => {
+  try {
+    const smtpSettings = await getSMTPSettings();
+    if (!smtpSettings) {
+      return null;
+    }
+    const transporter = nodemailer.createTransport({
+      host: smtpSettings.host,
+      port: smtpSettings.port,
+      secure: smtpSettings.port === 465,
+      auth: {
+        user: smtpSettings.username,
+        pass: smtpSettings.password,
+      },
+    });
+    return transporter;
+  } catch (error) {
+    console.error("Error creating Nodemailer transporter:", error);
+    return null;
+  }
+};
 
-const transporter = nodemailer.createTransport({
-  host: process.env.NODEMAILER_HOST,
-  port: Number(process.env.NODEMAILER_PORT),
-  secure: process.env.NODEMAILER_PORT === "465",
-  auth: {
-    user: process.env.NODEMAILER_USER,
-    pass: process.env.NODEMAILER_PASS,
-  },
-});
-
-export default transporter;
+export default getTransporter;

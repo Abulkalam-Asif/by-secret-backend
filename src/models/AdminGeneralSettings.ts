@@ -10,8 +10,10 @@ const AdminGeneralSettingsSchema: Schema = new Schema({
   state: { type: String, required: true },
   country: { type: String, required: true },
   zipCode: { type: String, required: true },
-  stripePublishableKey: { type: String, required: false },
-  stripePrivateKey: { type: String, required: false },
+  stripeTestPublishableKey: { type: String, required: false },
+  stripeTestSecretKey: { type: String, required: false },
+  stripeLivePublishableKey: { type: String, required: false },
+  stripeLiveSecretKey: { type: String, required: false },
   googleMapsApiKey: { type: String, required: false },
   oneLoginPublishableKey: { type: String, required: false },
   oneLoginPrivateKey: { type: String, required: false },
@@ -25,4 +27,7 @@ const AdminGeneralSettingsSchema: Schema = new Schema({
   privacyPolicy: { type: String, required: false },
 });
 
-export const AdminGeneralSettings = mongoose.model("AdminGeneralSettings", AdminGeneralSettingsSchema);
+export const AdminGeneralSettings = mongoose.model(
+  "AdminGeneralSettings",
+  AdminGeneralSettingsSchema
+);

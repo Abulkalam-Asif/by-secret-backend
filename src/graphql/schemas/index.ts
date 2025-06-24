@@ -10,6 +10,7 @@ import { rouletteCampaignTypeDefs } from "./rouletteCampaignSchema";
 import { campaignsCountTypeDefs } from "./campaignsCountSchema";
 import { advertiserSettingsTypeDefs } from "./advertiserSettingsSchema";
 import { invoiceTypeDefs } from "./invoiceSchema";
+import { stripeKeyTypeDefs } from "./stripeKeySchema";
 
 const typeDefs = [
   adminAuthTypeDefs,
@@ -24,6 +25,7 @@ const typeDefs = [
   campaignsCountTypeDefs,
   advertiserSettingsTypeDefs,
   invoiceTypeDefs,
+  stripeKeyTypeDefs,
 ];
 
 export default typeDefs;

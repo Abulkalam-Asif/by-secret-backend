@@ -10,6 +10,7 @@ import { rouletteSettingsResolver } from "./rouletteSettingsResolver";
 import { wikiResolver } from "./wikiResolver";
 import { advertiserSettingsResolver } from "./advertiserSettingsResolver";
 import { invoiceResolver } from "./invoiceResolver";
+import { stripeKeyResolver } from "./stripeKeyResolver";
 
 const resolvers = {
   Query: {
@@ -25,6 +26,7 @@ const resolvers = {
     ...campaignsCountResolver.Query,
     ...advertiserSettingsResolver.Query,
     ...invoiceResolver.Query,
+    ...stripeKeyResolver.Query,
   },
   Mutation: {
     ...adminAuthResolver.Mutation,
@@ -39,6 +41,7 @@ const resolvers = {
     ...campaignsCountResolver.Mutation,
     ...advertiserSettingsResolver.Mutation,
     ...invoiceResolver.Mutation,
+    ...stripeKeyResolver.Mutation,
   },
 };
 
