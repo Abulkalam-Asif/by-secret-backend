@@ -1,6 +1,7 @@
 import { adminAuthTypeDefs } from "./adminAuthSchema";
 import { generalSettingsTypeDefs } from "./generalSettingsSchema";
 import { adsSettingsTypeDefs } from "./adsSettingsSchema";
+import { bemidiaAdsSettingsTypeDefs } from "./bemidiaAdsSettingsSchema";
 import { rouletteSettingsTypeDefs } from "./rouletteSettingsSchema";
 import { wikiTypeDefs } from "./wikiSchema";
 import { advertiserAuthTypeDefs } from "./advertiserAuthSchema";
@@ -14,6 +15,7 @@ const typeDefs = [
   adminAuthTypeDefs,
   wikiTypeDefs,
   adsSettingsTypeDefs,
+  bemidiaAdsSettingsTypeDefs,
   rouletteSettingsTypeDefs,
   generalSettingsTypeDefs,
   advertiserAuthTypeDefs,
