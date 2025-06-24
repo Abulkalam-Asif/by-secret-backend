@@ -11,10 +11,8 @@ export const generalSettingsTypeDefs = gql`
     state: String
     country: String
     zipCode: String
-    stripeTestPublishableKey: String
-    stripeTestSecretKey: String
-    stripeLivePublishableKey: String
-    stripeLiveSecretKey: String
+    stripePublishableKey: String
+    stripeSecretKey: String
     googleMapsApiKey: String
     oneLoginPublishableKey: String
     oneLoginPrivateKey: String
@@ -48,10 +46,8 @@ export const generalSettingsTypeDefs = gql`
       state: String
       country: String
       zipCode: String
-      stripeTestPublishableKey: String
-      stripeTestSecretKey: String
-      stripeLivePublishableKey: String
-      stripeLiveSecretKey: String
+      stripePublishableKey: String
+      stripeSecretKey: String
       googleMapsApiKey: String
       oneLoginPublishableKey: String
       oneLoginPrivateKey: String

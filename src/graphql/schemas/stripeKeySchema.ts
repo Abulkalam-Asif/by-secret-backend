@@ -1,12 +1,10 @@
 export const stripeKeyTypeDefs = `
   type StripeKey {
-    stripeTestPublishableKey: String!
-    stripeLivePublishableKey: String!
+    stripePublishableKey: String!
   }
 
   type Query {
-    getStripeTestPublishableKey: String!
-    getStripeLivePublishableKey: String!
+    getStripePublishableKey: String!
   }
   
   type Mutation {

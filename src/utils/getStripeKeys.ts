@@ -1,10 +1,8 @@
 import { AdminGeneralSettings } from "../models/AdminGeneralSettings";
 
 export type StripeKeys = {
-  stripeTestPublishableKey: string;
-  stripeTestSecretKey: string;
-  stripeLivePublishableKey: string;
-  stripeLiveSecretKey: string;
+  stripePublishableKey: string;
+  stripeSecretKey: string;
 };
 
 export const getStripeKeys = async (): Promise<StripeKeys | null> => {
@@ -13,19 +11,12 @@ export const getStripeKeys = async (): Promise<StripeKeys | null> => {
     if (!settings) {
       return null;
     }
-    if (
-      !settings.stripeTestPublishableKey ||
-      !settings.stripeTestSecretKey ||
-      !settings.stripeLivePublishableKey ||
-      !settings.stripeLiveSecretKey
-    ) {
+    if (!settings.stripePublishableKey || !settings.stripeSecretKey) {
       return null;
     }
     return {
-      stripeTestPublishableKey: settings.stripeTestPublishableKey as string,
-      stripeTestSecretKey: settings.stripeTestSecretKey as string,
-      stripeLivePublishableKey: settings.stripeLivePublishableKey as string,
-      stripeLiveSecretKey: settings.stripeLiveSecretKey as string,
+      stripePublishableKey: settings.stripePublishableKey as string,
+      stripeSecretKey: settings.stripeSecretKey as string,
     };
   } catch (error) {
     console.error("Error fetching Stripe keys:", error);

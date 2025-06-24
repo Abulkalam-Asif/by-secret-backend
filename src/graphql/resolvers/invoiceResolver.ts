@@ -109,7 +109,7 @@ export const invoiceResolver = {
             };
           }
 
-          const stripe = new Stripe(stripeKeys.stripeTestSecretKey);
+          const stripe = new Stripe(stripeKeys.stripeSecretKey);
 
           try {
             // Create a payment intent

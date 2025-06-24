@@ -2,27 +2,15 @@ import { getStripeKeys } from "../../utils/getStripeKeys";
 
 export const stripeKeyResolver = {
   Query: {
-    getStripeTestPublishableKey: async (_: any, _args: any) => {
+    getStripePublishableKey: async (_: any, _args: any) => {
       try {
         const stripeKeys = await getStripeKeys();
         if (!stripeKeys) {
           return null;
         }
-        return stripeKeys.stripeTestPublishableKey;
+        return stripeKeys.stripePublishableKey;
       } catch (error) {
-        console.error("Error getting Stripe test publishable key:", error);
-        return null;
-      }
-    },
-    getStripeLivePublishableKey: async (_: any, _args: any) => {
-      try {
-        const stripeKeys = await getStripeKeys();
-        if (!stripeKeys) {
-          return null;
-        }
-        return stripeKeys.stripeLivePublishableKey;
-      } catch (error) {
-        console.error("Error getting Stripe live publishable key:", error);
+        console.error("Error getting Stripe publishable key:", error);
         return null;
       }
     },
