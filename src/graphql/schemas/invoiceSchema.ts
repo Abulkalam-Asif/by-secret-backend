@@ -1,6 +1,7 @@
 import { gql } from "apollo-server-express";
 
-export const invoiceTypeDefs = gql`  type Invoice {
+export const invoiceTypeDefs = gql`
+  type Invoice {
     id: ID
     invoiceNumber: String
     advertiser: String
@@ -14,12 +15,17 @@ export const invoiceTypeDefs = gql`  type Invoice {
     paymentMethod: String
   }
 
+  type PaymentResponse {
+    success: Boolean!
+    message: String!
+  }
+
   type Query {
     getInvoicesForAdmin: [Invoice]
     getInvoicesForAdvertiser: [Invoice]
   }
 
   type Mutation {
-    _: String
+    payInvoice(invoiceId: ID!, paymentMethodId: String!): PaymentResponse!
   }
 `;
