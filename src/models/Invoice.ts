@@ -25,7 +25,7 @@ const InvoiceSchema: Schema = new Schema({
   },
   campaignType: {
     type: String,
-    enum: ["AdsCampaign", "RouletteCampaign"],
+    enum: ["AdsCampaign", "RouletteCampaign", "BeMidiaCampaign"],
     required: true,
   },
   date: {
@@ -83,6 +83,7 @@ InvoiceSchema.pre("save", async function (next) {
 InvoiceSchema.statics.findWithPopulation = async function () {
   const { AdsCampaign } = require("./AdsCampaign");
   const { RouletteCampaign } = require("./RouletteCampaign");
+  const { BeMidiaCampaign } = require("./BeMidiaCampaign");
   // Get invoices with advertiser populated
   const invoices = await this.find()
     .populate("advertiser", "companyName")
@@ -102,6 +103,10 @@ InvoiceSchema.statics.findWithPopulation = async function () {
           .lean();
       } else if (invoice.campaignType === "RouletteCampaign") {
         campaignData = await RouletteCampaign.findById(invoice.campaign)
+          .select("name")
+          .lean();
+      } else if (invoice.campaignType === "BeMidiaCampaign") {
+        campaignData = await BeMidiaCampaign.findById(invoice.campaign)
           .select("name")
           .lean();
       }

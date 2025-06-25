@@ -6,6 +6,7 @@ import { rouletteSettingsTypeDefs } from "./rouletteSettingsSchema";
 import { wikiTypeDefs } from "./wikiSchema";
 import { advertiserAuthTypeDefs } from "./advertiserAuthSchema";
 import { adsCampaignTypeDefs } from "./adsCampaignSchema";
+import { beMidiaCampaignTypeDefs } from "./beMidiaCampaignSchema";
 import { rouletteCampaignTypeDefs } from "./rouletteCampaignSchema";
 import { campaignsCountTypeDefs } from "./campaignsCountSchema";
 import { advertiserSettingsTypeDefs } from "./advertiserSettingsSchema";
@@ -21,6 +22,7 @@ const typeDefs = [
   generalSettingsTypeDefs,
   advertiserAuthTypeDefs,
   adsCampaignTypeDefs,
+  beMidiaCampaignTypeDefs,
   rouletteCampaignTypeDefs,
   campaignsCountTypeDefs,
   advertiserSettingsTypeDefs,
